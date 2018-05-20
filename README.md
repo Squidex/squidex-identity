@@ -1,10 +1,10 @@
 ![Squidex Logo](https://raw.githubusercontent.com/Squidex/squidex/master/media/logo-wide.png "Squidex")
 
-# Squidex Identity
+# Squidex Identity (ALPHA 1)
 
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=square)](https://gitter.im/squidex-cms/Lobby) [![Slack](https://img.shields.io/badge/chat-on_slack-E01765.svg?style=square)](https://squidex-slack.herokuapp.com/) [![Build Status](http://build.squidex.io/api/badges/Squidex/squidex-identity/status.svg)](http://build.squidex.io/Squidex/squidex-identity)
 
-Identity server based on Squidex Headless CMS. It implements the OpenId Connect and OAuth 2.0 to act as a central single sign on server.
+Identity server based on Squidex Headless CMS. It implements the OpenId Connect and OAuth 2.0 protocols to act as a central single sign on server.
 
 ## Based on
 
@@ -14,7 +14,7 @@ Identity server based on Squidex Headless CMS. It implements the OpenId Connect 
 
 ## Requirements
 
-* MongoDB or a SQL database.
+* MongoDB or a SQL database (WORK IN PROGRESS).
 * Squidex server (either cloud version or self hosted).
 
 ## Similary Solutions
