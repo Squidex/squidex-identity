@@ -24,7 +24,7 @@ Identity server based on Squidex Headless CMS. It implements the OpenId Connect 
 
 ## Screenshots
 
-The UI is based on the templates for ASP.NET Core and Bootstrap v4. You can also define the logo, footer text links, bootstrap and a custom style. The UI has been designed to be lightweight and easy to integrate.
+The UI is based on the templates for ASP.NET Core and Bootstrap v4, but highly customizable. You can define a custom logo, footer text and links, a bootstrap theme or/and a custom style and many more. The UI has been designed to be lightweight and easy to integrate.
 
 ![Login Screen](https://raw.githubusercontent.com/Squidex/squidex-identity/master/screenshots/screenshot-01.png "Login Screen")
 
