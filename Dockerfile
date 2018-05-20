@@ -11,7 +11,7 @@ WORKDIR /
 RUN dotnet restore
 
 # Publish
-RUN dotnet publish src/Squidex.Identity.csproj --output /out/ --configuration Release
+RUN dotnet publish Squidex.Identity/Squidex.Identity.csproj --output /out/ --configuration Release
 
 #
 # Stage 2, Build runtime
