@@ -1,7 +1,7 @@
 #
 # Stage 1, Prebuild
 #
-FROM microsoft/dotnet:2.1.0-rc1-sdk
+FROM microsoft/dotnet:2.1-sdk
 
 COPY . .
 
