@@ -1,0 +1,10 @@
+# User-specific files
+*.suo
+*.user
+*.vs
+*.log
+
+.vs
+.git
+
+**/Squidex.Identity/appsettings.Development.json
