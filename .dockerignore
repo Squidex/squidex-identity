@@ -7,4 +7,11 @@
 .vs
 .git
 
+# Build results
+**/build/
+**/bin/
+**/obj/
+**/publish/
+
 **/Squidex.Identity/appsettings.Development.json
+**/Squidex.Identity/Properties/launchSettings.json
