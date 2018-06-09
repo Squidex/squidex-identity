@@ -16,7 +16,7 @@ RUN dotnet publish Squidex.Identity/Squidex.Identity.csproj --output /out/ --con
 #
 # Stage 2, Build runtime
 #
-FROM microsoft/dotnet:2.1.0-rc1-aspnetcore-runtime
+FROM microsoft/dotnet:2.1.0-aspnetcore-runtime
 
 # Default AspNetCore directory
 WORKDIR /app
