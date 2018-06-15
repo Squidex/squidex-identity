@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AcceptPrivacyPolicy" xml:space="preserve">
+  <data name="AcceptPrivacyPolicyError" xml:space="preserve">
     <value>You must accept the privacy policy to create an account.</value>
   </data>
   <data name="AcceptTermsOfServiceError" xml:space="preserve">
@@ -263,6 +263,12 @@
   </data>
   <data name="ProfileLink" xml:space="preserve">
     <value>Profile</value>
+  </data>
+  <data name="PwnedEmailError" xml:space="preserve">
+    <value>This e-email has previously appeared in a data breach and should never be used. If you've ever used it anywhere before, change it!</value>
+  </data>
+  <data name="PwnedPasswordError" xml:space="preserve">
+    <value>This password has previously appeared in a data breach and should never be used. If you've ever used it anywhere before, change it!</value>
   </data>
   <data name="RegisterButton" xml:space="preserve">
     <value>Register</value>

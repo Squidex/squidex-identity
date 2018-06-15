@@ -6,6 +6,7 @@
 // ==========================================================================
 
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -18,10 +19,12 @@ namespace Squidex.Identity.Pages
     public sealed class RegisterModel : PageModelBase<RegisterModel>
     {
         private readonly IEmailSender emailSender;
+        private readonly IEmailValidator emailValidator;
 
-        public RegisterModel(IEmailSender emailSender)
+        public RegisterModel(IEmailSender emailSender, IEmailValidator emailValidator)
         {
             this.emailSender = emailSender;
+            this.emailValidator = emailValidator;
         }
 
         [BindProperty]
@@ -77,6 +80,13 @@ namespace Squidex.Identity.Pages
                 var field = nameof(Input.AcceptTermsOfService);
 
                 ModelState.AddModelError($"{nameof(Input)}.{field}", T[$"{field}Error"]);
+            }
+
+            var emailCheck = await emailValidator.ValidateAsync(Input.Email);
+
+            if (emailCheck.Errors.Any())
+            {
+                ModelState.AddModelErrors(emailCheck);
             }
 
             if (ModelState.IsValid)

@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SharpPwned.NET;
 using Squidex.ClientLibrary;
 using Squidex.Identity.Model;
 using Squidex.Identity.Model.Authentication;
@@ -108,6 +109,8 @@ namespace Squidex.Identity
                     options.Conventions.AuthorizePage("/Logout");
                 });
 
+            services.AddSingleton<HaveIBeenPwnedRestClient>();
+
             services.AddAuthenticationConfigurator<FacebookOptions, FacebookHandler>(
                 AuthenticationSchemeType.Facebook, Factories.OAuth<FacebookOptions>);
 
@@ -119,6 +122,12 @@ namespace Squidex.Identity
 
             services.AddAuthenticationConfigurator<TwitterOptions, TwitterHandler>(
                 AuthenticationSchemeType.Twitter, Factories.Twitter);
+
+            services.AddSingleton<IPasswordValidator<UserEntity>,
+                PwnedPasswordValidator>();
+
+            services.AddSingleton<IEmailValidator,
+                PwnedEmailValidator>();
 
             services.AddSingleton<IAuthenticationSchemeProvider,
                 SquidexAuthenticationSchemeProvider>();
