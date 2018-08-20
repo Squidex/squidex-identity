@@ -13,13 +13,13 @@
     </div>
 }
 
-<h1>@Model.ClientName <small>is requesting your permission</small></h1>
+<h1>@Model.ClientName <small>@T["ConsentText"]</small></h1>
 
 <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
     <div class="form-group text-muted">
-        Uncheck the permissions you do not wish to grant.
+        @T["ConsentUncheck"]
     </div>
 
     @if (Model.IdentityScopes.Any())
