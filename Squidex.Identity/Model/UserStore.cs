@@ -50,26 +50,26 @@ namespace Squidex.Identity.Model
 
         public Task<UserEntity> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
-            return apiClient.GetAsync(userId);
+            return apiClient.GetAsync(userId, Context.Build());
         }
 
         public async Task<UserEntity> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            var result = await apiClient.GetAsync(filter: $"data/normalizedEmail/iv eq '{normalizedEmail}'");
+            var result = await apiClient.GetAsync(filter: $"data/normalizedEmail/iv eq '{normalizedEmail}'", context: Context.Build());
 
             return result.Items.SingleOrDefault();
         }
 
         public async Task<UserEntity> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            var result = await apiClient.GetAsync(filter: $"data/normalizedUserName/iv eq '{normalizedUserName}'");
+            var result = await apiClient.GetAsync(filter: $"data/normalizedUserName/iv eq '{normalizedUserName}'", context: Context.Build());
 
             return result.Items.SingleOrDefault();
         }
 
         public async Task<UserEntity> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            var result = await apiClient.GetAsync(filter: $"data/loginKeys/iv eq '{UserData.LoginKey(loginProvider, providerKey)}'");
+            var result = await apiClient.GetAsync(filter: $"data/loginKeys/iv eq '{UserData.LoginKey(loginProvider, providerKey)}'", context: Context.Build());
 
             return result.Items.SingleOrDefault();
         }

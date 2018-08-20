@@ -5,21 +5,16 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-using Newtonsoft.Json;
+using System.Globalization;
 using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
 {
-    public sealed class ResourceData
+    public static class Context
     {
-        public string Name { get; set; }
-
-        public string DisplayName { get; set; }
-
-        public string Description { get; set; }
-
-        public string UserClaims { get; set; }
-
-        public bool Required { get; set; }
+        public static QueryContext Build()
+        {
+            return QueryContext.Default.Flatten().WithLanguages(CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+        }
     }
 }

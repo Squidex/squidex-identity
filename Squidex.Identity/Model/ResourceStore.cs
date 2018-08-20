@@ -60,8 +60,8 @@ namespace Squidex.Identity.Model
         {
             return GetOrAddAsync(nameof(ResourceStore), async () =>
             {
-                var taskForApiResources = apiApiResources.GetAsync();
-                var taskForIdentityResources = apiIdentityResources.GetAsync();
+                var taskForApiResources = apiApiResources.GetAsync(context: Context.Build());
+                var taskForIdentityResources = apiIdentityResources.GetAsync(context: Context.Build());
 
                 await Task.WhenAll(taskForApiResources, taskForIdentityResources);
 

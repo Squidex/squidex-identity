@@ -26,7 +26,7 @@ namespace Squidex.Identity.Model
 
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
-            var clients = await apiClient.GetAsync(filter: $"data/clientId/iv eq '{clientId}'");
+            var clients = await apiClient.GetAsync(filter: $"data/clientId/iv eq '{clientId}'", context: Context.Build());
 
             var client = clients.Items.FirstOrDefault();
 

@@ -12,52 +12,38 @@ namespace Squidex.Identity.Model
 {
     public sealed class SettingsData
     {
-        [JsonConverter(typeof(InvariantConverter))]
         public string SiteName { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string FooterText { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string PrivacyPolicyUrl { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string LegalUrl { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string BootstrapUrl { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string TermsOfServiceUrl { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string StylesUrl { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string EmailConfirmationText { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string EmailConfirmationSubject { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string EmailPasswordResetText { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string EmailPasswordResetSubject { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string SmtpFrom { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string SmtpServer { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string SmtpUsername { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
         public string SmtpPassword { get; set; }
 
-        [JsonConverter(typeof(InvariantConverter))]
+        public string GoogleAnalyticsId { get; set; }
+
         public string[] Logo { get; set; }
     }
 }
