@@ -5,9 +5,6 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-using Newtonsoft.Json;
-using Squidex.ClientLibrary;
-
 namespace Squidex.Identity.Model
 {
     public sealed class SettingsData
