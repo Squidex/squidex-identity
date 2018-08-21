@@ -15,7 +15,7 @@ namespace Squidex.Identity.Model
         {
             var result = new UserEntity();
 
-            result.Data.UserName = email;
+            result.Data.Username = email;
             result.Data.Email = email;
 
             return result;

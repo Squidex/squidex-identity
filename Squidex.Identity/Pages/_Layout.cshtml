@@ -46,7 +46,7 @@
             @if (!string.IsNullOrWhiteSpace(image))
             {
                 <a href="@link">
-                    <img class="logo" src="@image" alt="@settings.SiteName" />
+                    <img class="logo" src="@image?mode=Max&height=100" alt="@settings.SiteName" />
                 </a>
             }
             else

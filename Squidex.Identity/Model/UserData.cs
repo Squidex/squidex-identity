@@ -11,43 +11,61 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
+using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
 {
     public sealed class UserData
     {
-        public string UserName { get; set; }
+        [JsonConverter(typeof(InvariantConverter))]
+        public string Username { get; set; }
 
-        public string NormalizedUserName { get; set; }
+        [JsonConverter(typeof(InvariantConverter))]
+        public string NormalizedUsername { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public string Email { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public string NormalizedEmail { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public string PhoneNumber { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public string SecurityStamp { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public string PasswordHash { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public bool EmailConfirmed { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public bool PhoneNumberConfirmed { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public bool LockoutEnabled { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public int AccessFailedCount { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public DateTimeOffset? LockoutEndDateUtc { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public HashSet<string> Roles { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public HashSet<string> LoginKeys { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public Dictionary<string, string> Claims { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         public Dictionary<string, string> Tokens { get; set; }
 
+        [JsonConverter(typeof(InvariantConverter))]
         [JsonProperty("logins")]
         public List<UserLogin> LoginVals { get; set; }
 
