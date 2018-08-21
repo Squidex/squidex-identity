@@ -15,7 +15,7 @@ namespace Squidex.Identity.Model
 
         public string Description { get; set; }
 
-        public string UserClaims { get; set; }
+        public string[] UserClaims { get; set; }
 
         public bool Required { get; set; }
     }

@@ -67,11 +67,11 @@ namespace Squidex.Identity.Model
 
                 var identityResources = taskForIdentityResources.Result.Items.Select(x =>
                 {
-                    var identityResource = new IdentityResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.ToListFromCommataSeparated())
+                    var identityResource = new IdentityResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.OrDefault())
                     {
                         Description = x.Data.Description,
                         Emphasize = true,
-                        Required = x.Data.Required == true
+                        Required = x.Data.Required
                     };
 
                     return identityResource;
@@ -84,7 +84,7 @@ namespace Squidex.Identity.Model
 
                 var apiResources = taskForApiResources.Result.Items.Select(x =>
                 {
-                    var apiResource = new ApiResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.ToListFromCommataSeparated())
+                    var apiResource = new ApiResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.OrDefault())
                     {
                         Description = x.Data.Description
                     };

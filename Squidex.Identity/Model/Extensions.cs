@@ -13,17 +13,19 @@ namespace Squidex.Identity.Model
 {
     public static class Extensions
     {
-        public static List<string> ToListFromCommataSeparated(this string value)
+        public static List<Secret> ToSecrets(this string[] value)
         {
-            return value?
-                .Split(',', ';')
-                .Select(x => x.Trim())
-                .ToList() ?? new List<string>();
+            return value?.Select(x => new Secret(x.Sha256()))?.ToList() ?? new List<Secret>();
         }
 
-        public static List<Secret> ToSecretsListFromCommataSeparated(this string value)
+        public static IEnumerable<T> OrDefault<T>(this IEnumerable<T> value)
         {
-            return value.ToListFromCommataSeparated().Select(x => new Secret(x.Sha256())).ToList();
+            return value ?? Enumerable.Empty<T>();
+        }
+
+        public static ICollection<T> OrDefault<T>(this ICollection<T> value)
+        {
+            return value ?? new List<T>();
         }
     }
 }

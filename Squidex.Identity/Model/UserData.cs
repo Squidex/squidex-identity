@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 namespace Squidex.Identity.Model
 {
@@ -47,6 +48,7 @@ namespace Squidex.Identity.Model
 
         public Dictionary<string, string> Tokens { get; set; }
 
+        [JsonProperty("logins")]
         public List<UserLogin> LoginVals { get; set; }
 
         public void EnsureLogins()

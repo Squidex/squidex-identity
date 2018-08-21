@@ -31,7 +31,7 @@ namespace Squidex.Identity.Model
 
         public string EmailPasswordResetSubject { get; set; }
 
-        public string SmtpFrom { get; set; }
+        public string SmptSender { get; set; }
 
         public string SmtpServer { get; set; }
 

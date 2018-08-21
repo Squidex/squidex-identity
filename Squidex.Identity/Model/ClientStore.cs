@@ -38,18 +38,18 @@ namespace Squidex.Identity.Model
             return new Client
             {
                 AllowAccessTokensViaBrowser = true,
-                AllowedCorsOrigins = client.Data.AllowedCorsOrigins.ToListFromCommataSeparated(),
-                AllowedGrantTypes = client.Data.AllowedGrantTypes.ToListFromCommataSeparated(),
-                AllowedScopes = client.Data.AllowedScopes.ToListFromCommataSeparated(),
+                AllowedCorsOrigins = client.Data.AllowedCorsOrigins.OrDefault(),
+                AllowedGrantTypes = client.Data.AllowedGrantTypes.OrDefault(),
+                AllowedScopes = client.Data.AllowedScopes.OrDefault(),
                 AllowOfflineAccess = client.Data.AllowOfflineAccess,
                 ClientId = clientId,
                 ClientName = client.Data.ClientName,
-                ClientSecrets = client.Data.ClientSecrets.ToSecretsListFromCommataSeparated(),
+                ClientSecrets = client.Data.ClientSecrets.ToSecrets(),
                 ClientUri = client.Data.ClientUri,
                 LogoUri = apiClientManager.GenerateImageUrl(client.Data.Logo),
-                RedirectUris = client.Data.RedirectUris.ToListFromCommataSeparated(),
+                RedirectUris = client.Data.RedirectUris.OrDefault(),
                 RequireConsent = client.Data.RequireConsent,
-                PostLogoutRedirectUris = client.Data.PostLogoutRedirectUris.ToListFromCommataSeparated()
+                PostLogoutRedirectUris = client.Data.PostLogoutRedirectUris.OrDefault()
             };
         }
     }
