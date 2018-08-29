@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -59,6 +62,16 @@ namespace Squidex.Identity
             {
                 options.LowercaseUrls = true;
             });
+
+            services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(s =>
+            {
+                return new ConfigureOptions<KeyManagementOptions>(options =>
+                {
+                    options.XmlRepository = s.GetRequiredService<IXmlRepository>();
+                });
+            });
+
+            services.AddDataProtection().SetApplicationName("SquidexIdentity");
 
             services.AddAuthentication()
                 .AddCookie()
