@@ -11,7 +11,7 @@ WORKDIR /
 RUN dotnet restore
 
 # Publish
-RUN dotnet publish Squidex.Identity/Squidex.Identity.csproj --output /out/ --configuration Release
+RUN dotnet publish Squidex.Identity/Squidex.Identity.csproj --output /out/alpine --configuration Release -r alpine.3.7-x64
 
 #
 # Stage 2, Build runtime
@@ -23,12 +23,11 @@ WORKDIR /app
 
 # add libuv
 RUN apk add --no-cache libuv \
-&& ln -s /usr/lib/libuv.so.1 /usr/lib/libuv.so
-
+ && ln -s /usr/lib/libuv.so.1 /usr/lib/libuv.so
 
 # Copy from build stage
-COPY --from=builder /out/ .
+COPY --from=builder /out/alpine .
 
 EXPOSE 80
 
-ENTRYPOINT ["dotnet", "Squidex.Identity.dll"]
+ENTRYPOINT ["./Squidex.Identity"]
