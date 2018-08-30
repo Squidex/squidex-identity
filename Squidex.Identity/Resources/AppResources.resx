@@ -238,7 +238,7 @@
     <value>Welcome</value>
   </data>
   <data name="InvalidLoginAttempt" xml:space="preserve">
-    <value>You have tried to login too often. Please contact the site owner.</value>
+    <value>Username or password not correct.</value>
   </data>
   <data name="InvalidSelectionErrorMessage" xml:space="preserve">
     <value>Invalid selection.</value>
