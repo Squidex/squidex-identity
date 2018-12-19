@@ -17,7 +17,7 @@ out/
 publish/
 
 # NodeJS 
-**/node_modules/
+node_modules/
 
 # Development Settings
 appsettings.Development.json
