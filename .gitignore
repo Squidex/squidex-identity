@@ -23,9 +23,3 @@ publish/
 appsettings.Development.json
 appsettings.Production.json
 launchSettings.json
-
-# Build
-.drone.yml
-
-# Documentation
-CHANGELOG.md
