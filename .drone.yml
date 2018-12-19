@@ -1,3 +1,4 @@
+---
 kind: pipeline
 name: default
 
@@ -94,3 +95,6 @@ volumes:
   - name: docker2
     host:
       path: /var/lib/docker
+---
+kind: signature
+hmac: 3ffb59a70d1b29b7d73ba100a29e27edf3509cebd3450783f20fb45b2c07d439
