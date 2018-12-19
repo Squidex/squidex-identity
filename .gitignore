@@ -7,10 +7,13 @@
 .vs
 .git
 
+.vscode/
+
 # Build results
 build/
 bin/
 obj/
+out/
 publish/
 
 # NodeJS 
