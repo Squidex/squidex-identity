@@ -26,7 +26,11 @@ steps:
         path: /var/run/docker.sock
       - name: docker2
         path: /var/lib/docker
-    secrets: [ docker_username, docker_password ]
+    environment:
+      DOCKER_USERNAME:
+        from_secret: DOCKER_USERNAME
+      DOCKER_PASSWORD:
+        from_secret: DOCKER_PASSWORD
     when:
       event:
         - push
@@ -45,7 +49,11 @@ steps:
         path: /var/run/docker.sock
       - name: docker2
         path: /var/lib/docker
-    secrets: [ docker_username, docker_password ]
+    environment:
+      DOCKER_USERNAME:
+        from_secret: DOCKER_USERNAME
+      DOCKER_PASSWORD:
+        from_secret: DOCKER_PASSWORD
     when:
       event:
         - tag
