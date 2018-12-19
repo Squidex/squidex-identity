@@ -1,50 +1,56 @@
-clone:
-  git:
-    image: plugins/git:next
-    pull: true
+kind: pipeline
+name: default
 
-pipeline:
-  test_pull_request:
+steps:  
+  - name: test_pull_request
     image: docker
     commands:
       - docker build -t squidex/squidex-identity:test_pull_request .
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker:/var/lib/docker
+      - name: docker1
+        path: /var/run/docker.sock
+      - name: docker2
+        path: /var/lib/docker
     when:
-      event: pull_request
+      event:
+        - pull_request
 
-  build_dev:
+  - name: build_dev
     image: docker
     commands:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - docker build -t squidex/squidex-identity:dev .
       - docker push squidex/squidex-identity:dev
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker:/var/lib/docker
+      - name: docker1
+        path: /var/run/docker.sock
+      - name: docker2
+        path: /var/lib/docker
     secrets: [ docker_username, docker_password ]
     when:
-      event: push
-      branch: [ master ]
+      event:
+        - push
+      branch:
+        - master
 
-  build_release:
+  - name: build_release
     image: docker
     commands:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-      - docker build -t squidex/squidex-identity:latest -t squidex/squidex-identity:$TAG .
+      - docker build -t squidex/squidex-identity:latest -t squidex/squidex-identity:$${DRONE_TAG} .
       - docker push squidex/squidex-identity:latest
-      - docker push squidex/squidex-identity:$TAG
+      - docker push squidex/squidex-identity:$${DRONE_TAG}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker:/var/lib/docker
-    environment:
-      - TAG=${DRONE_TAG}
+      - name: docker1
+        path: /var/run/docker.sock
+      - name: docker2
+        path: /var/lib/docker
     secrets: [ docker_username, docker_password ]
     when:
-      event: tag
+      event:
+        - tag
 
-  slack:
+  - name: slack
     image: plugins/slack
     template: >
       {{#success build.status}}
@@ -54,14 +60,27 @@ pipeline:
       {{/success}}
     secrets: [ slack_webhook ]
     when:
-      status: [ failure, success ]
+      status:
+        - failure
+        - success
 
-  cleanup:
+  - name: cleanup
     image: docker
     commands:
       - docker system prune -f
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker:/var/lib/docker
+      - name: docker1
+        path: /var/run/docker.sock
+      - name: docker2
+        path: /var/lib/docker
     when:
-      status: failure
+      status:
+        - failure
+      
+volumes:
+  - name: docker1
+    host:
+      path: /var/run/docker.sock
+  - name: docker2
+    host:
+      path: /var/lib/docker
