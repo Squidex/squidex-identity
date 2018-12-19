@@ -4,13 +4,25 @@
 *.vs
 *.log
 
-.vscode
+.vs
+.git
 
 # Build results
-bin/
 build/
+bin/
 obj/
 publish/
 
-/Squidex.Identity/appsettings.Development.json
-/Squidex.Identity/Properties/launchSettings.json
+# NodeJS 
+**/node_modules/
+
+# Development Settings
+appsettings.Development.json
+appsettings.Production.json
+launchSettings.json
+
+# Build
+.drone.yml
+
+# Documentation
+CHANGELOG.md

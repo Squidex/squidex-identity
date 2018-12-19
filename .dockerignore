@@ -7,8 +7,6 @@
 .vs
 .git
 
-launchSettings.json
-
 # Build results
 **/build/
 **/bin/
@@ -18,11 +16,13 @@ launchSettings.json
 # NodeJS 
 **/node_modules/
 
+# Development Settings
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/launchSettings.json
+
 # Build
 .drone.yml
-
-# Development Settings
-appsettings.*.json
 
 # Documentation
 CHANGELOG.md
