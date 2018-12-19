@@ -1,7 +1,7 @@
 #
 # Stage 1, Prebuild
 #
-FROM microsoft/dotnet:2.1-sdk as builder
+FROM microsoft/dotnet:2.2-sdk as builder
 
 COPY . .
 
@@ -16,7 +16,7 @@ RUN dotnet publish Squidex.Identity/Squidex.Identity.csproj --output /out/alpine
 #
 # Stage 2, Build runtime
 #
-FROM microsoft/dotnet:2.1-runtime-deps-alpine
+FROM microsoft/dotnet:2.2-runtime-deps-alpine
 
 # Default AspNetCore directory
 WORKDIR /app
