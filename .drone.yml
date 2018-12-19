@@ -58,7 +58,9 @@ steps:
       {{else}}
         Squidex Identity build {{build.number}} failed. Fix me please.
       {{/success}}
-    secrets: [ slack_webhook ]
+    settings:
+      webhook:
+        from_secret: slack_webhook
     when:
       status:
         - failure
