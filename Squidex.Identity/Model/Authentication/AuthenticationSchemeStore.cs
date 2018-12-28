@@ -27,7 +27,7 @@ namespace Squidex.Identity.Model.Authentication
         {
             return GetOrAddAsync(nameof(AuthenticationSchemeType), async () =>
             {
-                var schemes = await apiClient.GetAsync();
+                var schemes = await apiClient.GetAsync(context: Context.Build());
 
                 return schemes.Items
                     .Select(x => x.Data).GroupBy(x => x.Provider)

@@ -7,6 +7,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -23,6 +24,8 @@ namespace Squidex.Identity.Model
 
         protected async Task<T> GetOrAddAsync<T>(object key, Func<Task<T>> provider)
         {
+            var cacheKey = $"{key}_{CultureInfo.CurrentCulture}";
+
             if (!cache.TryGetValue<T>(key, out var result))
             {
                 result = await provider();

@@ -18,10 +18,10 @@ namespace Squidex.Identity.Model
     public sealed class UserData
     {
         [JsonConverter(typeof(InvariantConverter))]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
-        public string NormalizedUserName { get; set; }
+        public string NormalizedUsername { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
         public string Email { get; set; }
@@ -57,15 +57,16 @@ namespace Squidex.Identity.Model
         public HashSet<string> Roles { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
-        public Dictionary<string, string> Claims { get; set; }
+        public HashSet<string> LoginKeys { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
-        public HashSet<string> LoginKeys { get; set; }
+        public Dictionary<string, string> Claims { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
         public Dictionary<string, string> Tokens { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
+        [JsonProperty("logins")]
         public List<UserLogin> LoginVals { get; set; }
 
         public void EnsureLogins()

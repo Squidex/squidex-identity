@@ -33,7 +33,9 @@ namespace Squidex.Identity.Services
                 EnableSsl = true
             };
 
-            smtpClient.Send(settings.SmtpFrom, email, settings.EmailConfirmationSubject, settings.EmailConfirmationText);
+            var text = settings.EmailConfirmationText?.Replace("{URL}", link);
+
+            smtpClient.Send(settings.SmtpSender, email, settings.EmailConfirmationSubject, text);
         }
 
         public async Task SendResetPasswordAsync(string email, string link)
@@ -48,7 +50,9 @@ namespace Squidex.Identity.Services
                 EnableSsl = true
             };
 
-            smtpClient.Send(settings.SmtpFrom, email, settings.EmailPasswordResetSubject, settings.EmailPasswordResetText);
+            var text = settings.EmailPasswordResetText?.Replace("{URL}", link);
+
+            smtpClient.Send(settings.SmtpSender, email, settings.EmailPasswordResetSubject, text);
         }
     }
 }

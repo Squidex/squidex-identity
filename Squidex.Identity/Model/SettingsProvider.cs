@@ -30,7 +30,7 @@ namespace Squidex.Identity.Model
         {
             return GetOrAddAsync(nameof(SettingsProvider), async () =>
             {
-                var settings = await apiClient.GetAsync();
+                var settings = await apiClient.GetAsync(context: Context.Build());
 
                 var result = settings.Items.FirstOrDefault()?.Data ?? new SettingsData();
 

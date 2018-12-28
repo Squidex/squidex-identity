@@ -62,7 +62,7 @@ namespace Squidex.Identity.Model
 
         public async Task<UserEntity> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            var result = await apiClient.GetAsync(filter: $"data/normalizedUserName/iv eq '{normalizedUserName}'");
+            var result = await apiClient.GetAsync(filter: $"data/normalizedUsername/iv eq '{normalizedUserName}'");
 
             return result.Items.SingleOrDefault();
         }
@@ -104,12 +104,12 @@ namespace Squidex.Identity.Model
 
         public Task<string> GetUserNameAsync(UserEntity user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(user.Data.UserName);
+            return Task.FromResult(user.Data.Username);
         }
 
         public Task<string> GetNormalizedUserNameAsync(UserEntity user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(user.Data.NormalizedUserName);
+            return Task.FromResult(user.Data.NormalizedUsername);
         }
 
         public Task<string> GetPasswordHashAsync(UserEntity user, CancellationToken cancellationToken)
@@ -194,14 +194,14 @@ namespace Squidex.Identity.Model
 
         public Task SetUserNameAsync(UserEntity user, string userName, CancellationToken cancellationToken)
         {
-            user.Data.UserName = userName;
+            user.Data.Username = userName;
 
             return Task.CompletedTask;
         }
 
         public Task SetNormalizedUserNameAsync(UserEntity user, string normalizedName, CancellationToken cancellationToken)
         {
-            user.Data.NormalizedUserName = normalizedName;
+            user.Data.NormalizedUsername = normalizedName;
 
             return Task.CompletedTask;
         }

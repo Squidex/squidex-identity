@@ -60,18 +60,18 @@ namespace Squidex.Identity.Model
         {
             return GetOrAddAsync(nameof(ResourceStore), async () =>
             {
-                var taskForApiResources = apiApiResources.GetAsync();
-                var taskForIdentityResources = apiIdentityResources.GetAsync();
+                var taskForApiResources = apiApiResources.GetAsync(context: Context.Build());
+                var taskForIdentityResources = apiIdentityResources.GetAsync(context: Context.Build());
 
                 await Task.WhenAll(taskForApiResources, taskForIdentityResources);
 
                 var identityResources = taskForIdentityResources.Result.Items.Select(x =>
                 {
-                    var identityResource = new IdentityResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.ToListFromCommataSeparated())
+                    var identityResource = new IdentityResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.OrDefault())
                     {
                         Description = x.Data.Description,
                         Emphasize = true,
-                        Required = x.Data.Required == true
+                        Required = x.Data.Required
                     };
 
                     return identityResource;
@@ -84,7 +84,7 @@ namespace Squidex.Identity.Model
 
                 var apiResources = taskForApiResources.Result.Items.Select(x =>
                 {
-                    var apiResource = new ApiResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.ToListFromCommataSeparated())
+                    var apiResource = new ApiResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.OrDefault())
                     {
                         Description = x.Data.Description
                     };

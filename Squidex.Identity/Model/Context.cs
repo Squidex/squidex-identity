@@ -5,16 +5,16 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-namespace Squidex.Identity.Model.Authentication
+using System.Globalization;
+using Squidex.ClientLibrary;
+
+namespace Squidex.Identity.Model
 {
-    public sealed class AuthenticationSchemeData
+    public static class Context
     {
-        public AuthenticationSchemeType Provider { get; set; }
-
-        public string ClientId { get; set; }
-
-        public string ClientSecret { get; set; }
-
-        public string[] Scopes { get; set; }
+        public static QueryContext Build()
+        {
+            return QueryContext.Default.Flatten().WithLanguages(CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+        }
     }
 }

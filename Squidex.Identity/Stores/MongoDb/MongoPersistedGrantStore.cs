@@ -5,7 +5,6 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
@@ -34,10 +33,11 @@ namespace Squidex.Identity.Stores.MongoDb
             collection = database.GetCollection<PersistedGrant>("Identity_PersistedGrants");
 
             collection.Indexes.CreateOne(
-                Builders<PersistedGrant>.IndexKeys
-                    .Ascending(x => x.SubjectId)
-                    .Ascending(x => x.ClientId)
-                    .Ascending(x => x.Type));
+                new CreateIndexModel<PersistedGrant>(
+                    Builders<PersistedGrant>.IndexKeys
+                        .Ascending(x => x.SubjectId)
+                        .Ascending(x => x.ClientId)
+                        .Ascending(x => x.Type)));
         }
 
         public async Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)

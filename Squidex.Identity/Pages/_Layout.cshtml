@@ -37,7 +37,7 @@
             @{
                 var image = SquidexClientManager.GenerateImageUrl(settings.Logo);
 
-                var link = 
+                var link =
                     User.Identity.IsAuthenticated ?
                         Url.Content("~/") :
                         Url.Content("~/manage");
@@ -46,7 +46,7 @@
             @if (!string.IsNullOrWhiteSpace(image))
             {
                 <a href="@link">
-                    <img class="logo" src="@image" alt="@settings.SiteName" />
+                    <img class="logo" src="@image?mode=Max&height=100" alt="@settings.SiteName" />
                 </a>
             }
             else
@@ -98,5 +98,18 @@
             });
         });
     </script>
+
+    @if (!string.IsNullOrWhiteSpace(settings.GoogleAnalyticsId))
+    {
+        <script async src="https://www.googletagmanager.com/gtag/js?id=@settings.GoogleAnalyticsId"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '@settings.GoogleAnalyticsId', { 'anonymize_ip': true });
+        </script>
+    }
 </body>
 </html>

@@ -1,7 +1,7 @@
 #
 # Stage 1, Prebuild
 #
-FROM microsoft/dotnet:2.1-sdk as builder
+FROM microsoft/dotnet:2.2-sdk as builder
 
 WORKDIR /src
 
@@ -11,19 +11,23 @@ COPY . .
 RUN dotnet restore
 
 # Publish
-RUN dotnet publish Squidex.Identity/Squidex.Identity.csproj --output /out/ --configuration Release
+RUN dotnet publish Squidex.Identity/Squidex.Identity.csproj --output /out/alpine --configuration Release -r alpine.3.7-x64
 
 #
 # Stage 2, Build runtime
 #
-FROM microsoft/dotnet:2.1.0-aspnetcore-runtime
+FROM microsoft/dotnet:2.2-runtime-deps-alpine
 
 # Default AspNetCore directory
 WORKDIR /app
 
+# add libuv
+RUN apk add --no-cache libuv \
+ && ln -s /usr/lib/libuv.so.1 /usr/lib/libuv.so
+
 # Copy from build stage
-COPY --from=builder /out/ .
+COPY --from=builder /out/alpine .
 
 EXPOSE 80
 
-ENTRYPOINT ["dotnet", "Squidex.Identity.dll"]
+ENTRYPOINT ["./Squidex.Identity"]

@@ -6,6 +6,8 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
@@ -13,9 +15,13 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -56,6 +62,16 @@ namespace Squidex.Identity
             {
                 options.LowercaseUrls = true;
             });
+
+            services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(s =>
+            {
+                return new ConfigureOptions<KeyManagementOptions>(options =>
+                {
+                    options.XmlRepository = s.GetRequiredService<IXmlRepository>();
+                });
+            });
+
+            services.AddDataProtection().SetApplicationName("SquidexIdentity");
 
             services.AddAuthentication()
                 .AddCookie()
@@ -169,6 +185,15 @@ namespace Squidex.Identity
                 RequireHeaderSymmetry = false
             });
 
+            var cultures = GetCultures();
+
+            app.UseRequestLocalization(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture(cultures[0]);
+                options.SupportedCultures = cultures;
+                options.SupportedUICultures = cultures;
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -183,6 +208,35 @@ namespace Squidex.Identity
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseMvc();
+        }
+
+        private List<CultureInfo> GetCultures()
+        {
+            var result = new List<CultureInfo>();
+
+            var cultures = Configuration.GetValue<string>("app:cultures");
+
+            if (!string.IsNullOrWhiteSpace(cultures))
+            {
+                foreach (var culture in cultures.Split(','))
+                {
+                    try
+                    {
+                        result.Add(CultureInfo.GetCultureInfo(culture.Trim()));
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            if (result.Count == 0)
+            {
+                result.Add(CultureInfo.GetCultureInfo("en"));
+            }
+
+            return result;
         }
     }
 }
