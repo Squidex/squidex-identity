@@ -57,24 +57,24 @@ namespace Squidex.Identity.Model
         public HashSet<string> Roles { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
-        public HashSet<string> LoginKeys { get; set; }
-
-        [JsonConverter(typeof(InvariantConverter))]
         public Dictionary<string, string> Claims { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
         public Dictionary<string, string> Tokens { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
-        [JsonProperty("logins")]
-        public List<UserLogin> LoginVals { get; set; }
+        public HashSet<string> LoginKeys { get; set; }
+
+        [JsonConverter(typeof(InvariantConverter))]
+        [JsonProperty("login")]
+        public Dictionary<string, UserLogin> LoginsObj { get; set; }
 
         public void EnsureLogins()
         {
-            if (LoginVals == null)
+            if (LoginsObj == null)
             {
                 LoginKeys = new HashSet<string>();
-                LoginVals = new List<UserLogin>();
+                LoginsObj = new Dictionary<string, UserLogin>();
             }
         }
 
@@ -127,23 +127,27 @@ namespace Squidex.Identity.Model
         {
             EnsureLogins();
 
-            LoginVals.Add(new UserLogin { LoginProvider = login.LoginProvider, DisplayName = login.ProviderDisplayName, ProviderKey = login.ProviderKey });
-            LoginKeys.Add(LoginKey(login.LoginProvider, login.ProviderKey));
+            var key = LoginKey(login);
+
+            LoginsObj[key] = login;
+            LoginKeys.Add(key);
         }
 
         public void RemoveLogin(string loginProvider, string providerKey)
         {
             EnsureLogins();
 
-            LoginVals.RemoveAll(x => x.LoginProvider == loginProvider && x.ProviderKey == providerKey);
-            LoginKeys.Remove(LoginKey(loginProvider, providerKey));
+            var key = LoginKey(loginProvider, providerKey);
+
+            LoginsObj.Remove(key);
+            LoginKeys.Remove(key);
         }
 
         public IList<UserLoginInfo> GetLogins()
         {
             EnsureLogins();
 
-            return LoginVals.Select(x => new UserLoginInfo(x.LoginProvider, x.ProviderKey, x.DisplayName)).ToList();
+            return LoginsObj.Values.Select(x => x.ToInfo()).ToList();
         }
 
         public void AddClaims(IEnumerable<Claim> claims)
@@ -207,6 +211,11 @@ namespace Squidex.Identity.Model
             EnsureTokens();
 
             return Tokens.GetValueOrDefault(TokenKey(loginProvider, name));
+        }
+
+        public static string LoginKey(UserLoginInfo info)
+        {
+            return LoginKey(info.LoginProvider, info.ProviderKey);
         }
 
         public static string LoginKey(string loginProvider, string providerKey)
