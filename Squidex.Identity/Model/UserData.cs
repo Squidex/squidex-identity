@@ -66,7 +66,6 @@ namespace Squidex.Identity.Model
         public Dictionary<string, string> Tokens { get; set; }
 
         [JsonConverter(typeof(InvariantConverter))]
-        [JsonProperty("logins")]
         public List<UserLogin> LoginVals { get; set; }
 
         public void EnsureLogins()
