@@ -5,8 +5,10 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Squidex.ClientLibrary;
@@ -35,12 +37,20 @@ namespace Squidex.Identity.Model
                 return null;
             }
 
+            var scopes = new HashSet<string>(client.Data.AllowedScopes.OrDefault())
+            {
+                IdentityServerConstants.StandardScopes.OpenId,
+                IdentityServerConstants.StandardScopes.Profile,
+                IdentityServerConstants.StandardScopes.Email,
+                DefaultResources.Permissions.Scope
+            };
+
             return new Client
             {
                 AllowAccessTokensViaBrowser = true,
                 AllowedCorsOrigins = client.Data.AllowedCorsOrigins.OrDefault(),
                 AllowedGrantTypes = client.Data.AllowedGrantTypes.OrDefault(),
-                AllowedScopes = client.Data.AllowedScopes.OrDefault(),
+                AllowedScopes = scopes,
                 AllowOfflineAccess = client.Data.AllowOfflineAccess,
                 ClientId = clientId,
                 ClientName = client.Data.ClientName,

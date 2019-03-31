@@ -372,4 +372,10 @@
   <data name="UserNameLabel" xml:space="preserve">
     <value>Username</value>
   </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>Squidex Permissions</value>
+  </data>
+  <data name="VerificationEmailSent" xml:space="preserve">
+    <value>Email has been sent.</value>
+  </data>
 </root>

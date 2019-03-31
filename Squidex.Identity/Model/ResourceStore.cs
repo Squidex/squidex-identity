@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
@@ -20,12 +21,15 @@ namespace Squidex.Identity.Model
     {
         private readonly SquidexClient<ResourceEntity, ResourceData> apiApiResources;
         private readonly SquidexClient<ResourceEntity, ResourceData> apiIdentityResources;
+        private readonly IStringLocalizer<AppResources> localizer;
 
-        public ResourceStore(IMemoryCache cache, SquidexClientManager clientManager)
+        public ResourceStore(IMemoryCache cache, SquidexClientManager clientManager, IStringLocalizer<AppResources> localizer)
             : base(cache)
         {
             apiApiResources = clientManager.GetClient<ResourceEntity, ResourceData>("api-resources");
             apiIdentityResources = clientManager.GetClient<ResourceEntity, ResourceData>("identity-resources");
+
+            this.localizer = localizer;
         }
 
         public async Task<Resources> GetAllResourcesAsync()
@@ -81,6 +85,7 @@ namespace Squidex.Identity.Model
                 identityResources.Add(new IdentityResources.Profile());
                 identityResources.Add(new IdentityResources.Email());
                 identityResources.Add(new IdentityResources.Phone());
+                identityResources.Add(new DefaultResources.Permissions(localizer));
 
                 var apiResources = taskForApiResources.Result.Items.Select(x =>
                 {

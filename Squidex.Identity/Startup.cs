@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -73,8 +74,12 @@ namespace Squidex.Identity
 
             services.AddDataProtection().SetApplicationName("SquidexIdentity");
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = ".sq.id.auth";
+            });
+
             services.AddAuthentication()
-                .AddCookie()
                 .AddFacebook()
                 .AddGoogle()
                 .AddMicrosoftAccount()
@@ -175,8 +180,7 @@ namespace Squidex.Identity
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials());
+                .AllowAnyHeader());
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
