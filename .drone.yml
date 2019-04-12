@@ -6,7 +6,7 @@ steps:
   - name: test_pull_request
     image: docker
     commands:
-      - docker build -t squidex/squidex-identitytest_pull_request .
+      - docker build -t squidex/squidex-identity:test_pull_request .
     volumes:
       - name: docker1
         path: /var/run/docker.sock
@@ -20,9 +20,9 @@ steps:
     image: docker
     commands:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-      - docker build -t squidex/squidex-identitydev -t squidex/squidex-identitydev-$${DRONE_BUILD_NUMBER} .
-      - docker push squidex/squidex-identitydev
-      - docker push squidex/squidex-identitydev-$${DRONE_BUILD_NUMBER}
+      - docker build -t squidex/squidex-identity:dev -t squidex/squidex-identity:dev-$${DRONE_BUILD_NUMBER} .
+      - docker push squidex/squidex-identity:dev
+      - docker push squidex/squidex-identity:dev-$${DRONE_BUILD_NUMBER}
     volumes:
       - name: docker1
         path: /var/run/docker.sock
@@ -43,9 +43,9 @@ steps:
     image: docker
     commands:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-      - docker build -t squidex/squidex-identitylatest -t squidex/squidex-identity$${DRONE_TAG} .
-      - docker push squidex/squidex-identitylatest
-      - docker push squidex/squidex-identity$${DRONE_TAG}
+      - docker build -t squidex/squidex-identity:latest -t squidex/squidex-identity:$${DRONE_TAG} .
+      - docker push squidex/squidex-identity:latest
+      - docker push squidex/squidex-identity:$${DRONE_TAG}
     volumes:
       - name: docker1
         path: /var/run/docker.sock
