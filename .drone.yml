@@ -6,7 +6,7 @@ steps:
   - name: test_pull_request
     image: docker
     commands:
-      - docker build -t squidex/squidex-identity:test_pull_request .
+      - docker build -t squidex/squidex-identitytest_pull_request .
     volumes:
       - name: docker1
         path: /var/run/docker.sock
@@ -20,8 +20,9 @@ steps:
     image: docker
     commands:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-      - docker build -t squidex/squidex-identity:dev .
-      - docker push squidex/squidex-identity:dev
+      - docker build -t squidex/squidex-identitydev -t squidex/squidex-identitydev-$${DRONE_BUILD_NUMBER} .
+      - docker push squidex/squidex-identitydev
+      - docker push squidex/squidex-identitydev-$${DRONE_BUILD_NUMBER}
     volumes:
       - name: docker1
         path: /var/run/docker.sock
@@ -42,9 +43,9 @@ steps:
     image: docker
     commands:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-      - docker build -t squidex/squidex-identity:latest -t squidex/squidex-identity:$${DRONE_TAG} .
-      - docker push squidex/squidex-identity:latest
-      - docker push squidex/squidex-identity:$${DRONE_TAG}
+      - docker build -t squidex/squidex-identitylatest -t squidex/squidex-identity$${DRONE_TAG} .
+      - docker push squidex/squidex-identitylatest
+      - docker push squidex/squidex-identity$${DRONE_TAG}
     volumes:
       - name: docker1
         path: /var/run/docker.sock
@@ -59,6 +60,50 @@ steps:
       event:
         - tag
 
+  - name: build_binaries
+    image: docker
+    commands:
+      - docker build . -t squidex-build-image -f Dockerfile.build
+      - docker create --name squidex-build-container squidex-build-image
+      - docker cp squidex-build-container:/out /build
+    volumes:
+      - name: build
+        path: /build
+      - name: docker1
+        path: /var/run/docker.sock
+      - name: docker2
+        path: /var/lib/docker
+    when:
+      event:
+        - tag
+
+  - name: binaries_zip
+    image: kramos/alpine-zip
+    commands:
+      -  cd /build/out && zip -r /release/binaries.zip .
+    volumes:
+      - name: build
+        path: /build
+      - name: release
+        path: /release
+    when:
+      event:
+        - tag
+
+  - name: binaries_publish  
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_apikey
+      files:
+        - /release/binaries.zip
+    volumes:
+      - name: release
+        path: /release
+    when:
+      event:
+        - tag
+
   - name: slack
     image: plugins/slack
     settings:
@@ -68,6 +113,23 @@ steps:
       status:
         - failure
         - success
+
+  - name: cleanup-build
+    image: docker
+    commands:
+      - docker rm squidex-build-container
+      - docker rmi squidex-build-image
+    volumes:
+      - name: docker1
+        path: /var/run/docker.sock
+      - name: docker2
+        path: /var/lib/docker
+    when:
+      status:
+        - failure
+        - success
+      event:
+        - tag
 
   - name: cleanup
     image: docker
@@ -83,12 +145,13 @@ steps:
         - failure
       
 volumes:
+  - name: build
+    temp: {}
+  - name: release
+    temp: {}
   - name: docker1
     host:
       path: /var/run/docker.sock
   - name: docker2
     host:
       path: /var/lib/docker
----
-kind: signature
-hmac: 3ffb59a70d1b29b7d73ba100a29e27edf3509cebd3450783f20fb45b2c07d439
