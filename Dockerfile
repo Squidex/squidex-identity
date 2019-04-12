@@ -6,8 +6,8 @@ FROM microsoft/dotnet:2.2-sdk as builder
 WORKDIR /src
 
 COPY . .
- 
-# Test Backend
+
+# Restore Dependencies
 RUN dotnet restore
 
 # Publish
