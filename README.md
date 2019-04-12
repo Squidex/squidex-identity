@@ -12,7 +12,7 @@ Please join our community forum: https://support.squidex.io
 
 ## Based on
 
-* ASP.NET Core 2.1.
+* ASP.NET Core 2.2.
 * ASP.NET Core Identity
 * Identity Server 4 (http://docs.identityserver.io/en/release/)
 
