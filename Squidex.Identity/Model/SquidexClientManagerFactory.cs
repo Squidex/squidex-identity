@@ -19,7 +19,10 @@ namespace Squidex.Identity.Model
         private readonly ConcurrentDictionary<string, SquidexClientManager> clientManagers = new ConcurrentDictionary<string, SquidexClientManager>();
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public SquidexClientManagerFactory(IOptions<SquidexOptions> appDefault, IOptions<SquidexOptionsPerHost> appPerHost, IHttpContextAccessor httpContextAccessor)
+        public SquidexClientManagerFactory(
+            IOptions<SquidexOptions> appDefault,
+            IOptions<SquidexOptionsPerHost> appPerHost,
+            IHttpContextAccessor httpContextAccessor)
         {
             this.appDefault = new SquidexClientManager(appDefault.Value);
             this.appPerHost = appPerHost.Value;
