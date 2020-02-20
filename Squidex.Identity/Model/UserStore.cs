@@ -27,11 +27,11 @@ namespace Squidex.Identity.Model
         IUserLockoutStore<UserEntity>,
         IUserAuthenticationTokenStore<UserEntity>
     {
-        private readonly SquidexClient<UserEntity, UserData> apiClient;
+        private readonly IContentsClient<UserEntity, UserData> apiClient;
 
         public UserStore(SquidexClientManager clientManager)
         {
-            apiClient = clientManager.GetClient<UserEntity, UserData>("users");
+            apiClient = clientManager.CreateContentsClient<UserEntity, UserData>("users");
         }
 
         public void Dispose()
@@ -50,26 +50,41 @@ namespace Squidex.Identity.Model
 
         public Task<UserEntity> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
-            return apiClient.GetAsync(userId);
+            return apiClient.GetAsync(Guid.Parse(userId));
         }
 
         public async Task<UserEntity> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            var result = await apiClient.GetAsync(filter: $"data/normalizedEmail/iv eq '{normalizedEmail}'");
+            var query = new ContentQuery
+            {
+                Filter = $"data/normalizedEmail/iv eq '{normalizedEmail}'"
+            };
+
+            var result = await apiClient.GetAsync(query);
 
             return result.Items.SingleOrDefault();
         }
 
         public async Task<UserEntity> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            var result = await apiClient.GetAsync(filter: $"data/normalizedUsername/iv eq '{normalizedUserName}'");
+            var query = new ContentQuery
+            {
+                Filter = $"data/normalizedUsername/iv eq '{normalizedUserName}'"
+            };
+
+            var result = await apiClient.GetAsync(query);
 
             return result.Items.SingleOrDefault();
         }
 
         public async Task<UserEntity> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            var result = await apiClient.GetAsync(filter: $"data/loginKeys/iv eq '{UserData.LoginKey(loginProvider, providerKey)}'");
+            var query = new ContentQuery
+            {
+                Filter = $"data/loginKeys/iv eq '{UserData.LoginKey(loginProvider, providerKey)}'"
+            };
+
+            var result = await apiClient.GetAsync(query);
 
             return result.Items.SingleOrDefault();
         }
@@ -99,7 +114,7 @@ namespace Squidex.Identity.Model
 
         public Task<string> GetUserIdAsync(UserEntity user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(user.Id);
+            return Task.FromResult(user.Id.ToString());
         }
 
         public Task<string> GetUserNameAsync(UserEntity user, CancellationToken cancellationToken)

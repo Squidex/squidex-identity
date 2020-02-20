@@ -7,21 +7,21 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
 {
     public sealed class SettingsProvider : CachingProvider, ISettingsProvider
     {
-        private readonly SquidexClient<SettingsEntity, SettingsData> apiClient;
+        private readonly SquidexClientManagerFactory factory;
         private readonly IOptions<SettingsData> defaults;
 
-        public SettingsProvider(SquidexClientManager clientManager, IMemoryCache cache, IOptions<SettingsData> defaults)
-            : base(cache)
+        public SettingsProvider(IMemoryCache cache, IHttpContextAccessor httpContextAccessor, SquidexClientManagerFactory factory, IOptions<SettingsData> defaults)
+            : base(cache, httpContextAccessor)
         {
-            apiClient = clientManager.GetClient<SettingsEntity, SettingsData>("settings");
+            this.factory = factory;
 
             this.defaults = defaults;
         }
@@ -30,6 +30,10 @@ namespace Squidex.Identity.Model
         {
             return GetOrAddAsync(nameof(SettingsProvider), async () =>
             {
+                var apiClient =
+                    factory.GetClientManager()
+                        .CreateContentsClient<SettingsEntity, SettingsData>("settings");
+
                 var settings = await apiClient.GetAsync(context: Context.Build());
 
                 var result = settings.Items.FirstOrDefault()?.Data ?? new SettingsData();

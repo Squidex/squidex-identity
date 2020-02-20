@@ -9,7 +9,7 @@ using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model.Authentication
 {
-    public sealed class AuthenticationSchemeEntity : SquidexEntityBase<AuthenticationSchemeData>
+    public sealed class AuthenticationSchemeEntity : Content<AuthenticationSchemeData>
     {
     }
 }

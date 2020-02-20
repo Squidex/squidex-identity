@@ -9,7 +9,7 @@ using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
 {
-    public sealed class SettingsEntity : SquidexEntityBase<SettingsData>
+    public sealed class SettingsEntity : Content<SettingsData>
     {
     }
 }

@@ -8,25 +8,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model.Authentication
 {
     public sealed class AuthenticationSchemeStore : CachingProvider, IAuthenticationSchemeStore
     {
-        private readonly SquidexClient<AuthenticationSchemeEntity, AuthenticationSchemeData> apiClient;
+        private readonly SquidexClientManagerFactory factory;
 
-        public AuthenticationSchemeStore(SquidexClientManager clientManager, IMemoryCache cache)
-            : base(cache)
+        public AuthenticationSchemeStore(IMemoryCache cache, IHttpContextAccessor httpContextAccessor, SquidexClientManagerFactory factory)
+            : base(cache, httpContextAccessor)
         {
-            apiClient = clientManager.GetClient<AuthenticationSchemeEntity, AuthenticationSchemeData>("authentication-schemes");
+            this.factory = factory;
         }
 
         public Task<List<AuthenticationSchemeData>> GetSchemesAsync()
         {
             return GetOrAddAsync(nameof(AuthenticationSchemeType), async () =>
             {
+                var apiClient =
+                    factory.GetClientManager()
+                        .CreateContentsClient<AuthenticationSchemeEntity, AuthenticationSchemeData>("authentication-schemes");
+
                 var schemes = await apiClient.GetAsync(context: Context.Build());
 
                 return schemes.Items

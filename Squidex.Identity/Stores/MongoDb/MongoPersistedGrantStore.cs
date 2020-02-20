@@ -16,7 +16,7 @@ namespace Squidex.Identity.Stores.MongoDb
 {
     public sealed class MongoPersistedGrantStore : IPersistedGrantStore
     {
-        private static readonly UpdateOptions Upsert = new UpdateOptions { IsUpsert = true };
+        private static readonly ReplaceOptions UpsertReplace = new ReplaceOptions { IsUpsert = true };
         private readonly IMongoCollection<PersistedGrant> collection;
 
         static MongoPersistedGrantStore()
@@ -69,7 +69,7 @@ namespace Squidex.Identity.Stores.MongoDb
 
         public Task StoreAsync(PersistedGrant grant)
         {
-            return collection.ReplaceOneAsync(x => x.Key == grant.Key, grant, Upsert);
+            return collection.ReplaceOneAsync(x => x.Key == grant.Key, grant, UpsertReplace);
         }
     }
 }

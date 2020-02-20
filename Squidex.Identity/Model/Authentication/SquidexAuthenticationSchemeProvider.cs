@@ -66,7 +66,7 @@ namespace Squidex.Identity.Model.Authentication
 
         public Task<AuthenticationScheme> GetDefaultAuthenticateSchemeAsync()
         {
-            return GetSchemaOrDefaultAsync(options.Value.DefaultAuthenticateScheme);
+            return GetDefaultSchemeAsync();
         }
 
         public Task<AuthenticationScheme> GetDefaultChallengeSchemeAsync()

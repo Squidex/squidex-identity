@@ -17,18 +17,25 @@ namespace Squidex.Identity.Model
 {
     public sealed class ClientStore : IClientStore
     {
-        private readonly SquidexClient<ClientEntity, ClientData> apiClient;
-        private readonly SquidexClientManager apiClientManager;
+        private readonly SquidexClientManagerFactory factory;
 
-        public ClientStore(SquidexClientManager clientManager)
+        public ClientStore(SquidexClientManagerFactory factory)
         {
-            apiClient = clientManager.GetClient<ClientEntity, ClientData>("clients");
-            apiClientManager = clientManager;
+            this.factory = factory;
         }
 
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
-            var clients = await apiClient.GetAsync(filter: $"data/clientId/iv eq '{clientId}'", context: Context.Build());
+            var clientManager = factory.GetClientManager();
+
+            var apiClient = factory.GetClientManager().CreateContentsClient<ClientEntity, ClientData>("clients");
+
+            var query = new ContentQuery
+            {
+                Filter = $"data/clientId/iv eq '{clientId}'"
+            };
+
+            var clients = await apiClient.GetAsync(query, context: Context.Build());
 
             var client = clients.Items.FirstOrDefault();
 
@@ -56,10 +63,10 @@ namespace Squidex.Identity.Model
                 ClientName = client.Data.ClientName,
                 ClientSecrets = client.Data.ClientSecrets.ToSecrets(),
                 ClientUri = client.Data.ClientUri,
-                LogoUri = apiClientManager.GenerateImageUrl(client.Data.Logo),
+                LogoUri = clientManager.GenerateImageUrl(client.Data.Logo),
+                PostLogoutRedirectUris = client.Data.PostLogoutRedirectUris.OrDefault(),
                 RedirectUris = client.Data.RedirectUris.OrDefault(),
-                RequireConsent = client.Data.RequireConsent,
-                PostLogoutRedirectUris = client.Data.PostLogoutRedirectUris.OrDefault()
+                RequireConsent = client.Data.RequireConsent
             };
         }
     }

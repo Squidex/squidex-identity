@@ -9,7 +9,7 @@ using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
 {
-    public sealed class UserEntity : SquidexEntityBase<UserData>
+    public sealed class UserEntity : Content<UserData>
     {
         public static UserEntity Create(string email)
         {

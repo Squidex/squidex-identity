@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Squidex.Identity.Extensions;
 using Squidex.Identity.Model;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages
 {
     public sealed class ExternalLoginModel : PageModelBase<ExternalLoginModel>
@@ -158,7 +160,8 @@ namespace Squidex.Identity.Pages
 
     public sealed class ExternalLoginInputModel
     {
-        [Required, EmailAddress]
+        [Required]
+        [EmailAddress]
         [Display(Name = nameof(Email))]
         public string Email { get; set; }
 

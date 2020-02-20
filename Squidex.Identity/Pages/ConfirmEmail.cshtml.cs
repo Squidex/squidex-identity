@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages
 {
     public sealed class ConfirmEmailModel : PageModelBase<ConfirmEmailModel>

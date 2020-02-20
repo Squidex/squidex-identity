@@ -10,6 +10,8 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages
 {
     public sealed class ErrorModel : PageModel

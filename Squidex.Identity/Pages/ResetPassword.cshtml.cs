@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages
 {
     public sealed class ResetPasswordModel : PageModelBase<ResetPasswordModel>
@@ -57,10 +59,12 @@ namespace Squidex.Identity.Pages
 
     public sealed class ResetPasswordInputModel
     {
-        [Required, EmailAddress]
+        [Required]
+        [EmailAddress]
         public string Email { get; set; }
 
-        [Required, StringLength(100, MinimumLength = 6)]
+        [Required]
+        [StringLength(100, MinimumLength = 6)]
         public string Password { get; set; }
 
         [Compare(nameof(Password), ErrorMessage = "PasswordsNotSame")]

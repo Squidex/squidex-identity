@@ -8,9 +8,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SharpPwned.NET;
 using Squidex.ClientLibrary;
@@ -32,6 +33,7 @@ using Squidex.Identity.Model;
 using Squidex.Identity.Model.Authentication;
 using Squidex.Identity.Services;
 using Squidex.Identity.Stores.MongoDb;
+using Westwind.AspNetCore.LiveReload;
 
 namespace Squidex.Identity
 {
@@ -47,13 +49,15 @@ namespace Squidex.Identity
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<SquidexOptions>(Configuration.GetSection("app"));
+            services.Configure<SquidexOptionsPerHost>(Configuration.GetSection("app:hosts"));
             services.Configure<SettingsData>(Configuration.GetSection("defaultSettings"));
 
-            services.AddSingleton(c =>
-                SquidexClientManager.FromOption(c.GetRequiredService<IOptions<SquidexOptions>>().Value));
+            services.AddSingleton<SquidexClientManagerFactory>();
+            services.AddScoped(c => c.GetRequiredService<SquidexClientManagerFactory>().GetClientManager());
 
             services.AddMemoryCache();
 
+            services.AddLiveReload();
             services.AddLocalization(options =>
             {
                 options.ResourcesPath = "Resources";
@@ -112,7 +116,6 @@ namespace Squidex.Identity
                 .AddAspNetIdentity<UserEntity>()
                 .AddClientConfigurationValidator<DefaultClientConfigurationValidator>()
                 .AddClientStore<ClientStore>()
-                .AddDeveloperSigningCredential()
                 .AddInMemoryCaching()
                 .AddResourceStore<ResourceStore>();
 
@@ -145,6 +148,14 @@ namespace Squidex.Identity
             services.AddAuthenticationConfigurator<TwitterOptions, TwitterHandler>(
                 AuthenticationSchemeType.Twitter, Factories.Twitter);
 
+            services.AddSingleton<MongoKeyStore>();
+
+            services.AddSingleton<ISigningCredentialStore>(
+                c => c.GetRequiredService<MongoKeyStore>());
+
+            services.AddSingleton<IValidationKeysStore>(
+                c => c.GetRequiredService<MongoKeyStore>());
+
             services.AddSingleton<IPasswordValidator<UserEntity>,
                 PwnedPasswordValidator>();
 
@@ -175,7 +186,7 @@ namespace Squidex.Identity
             }
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
@@ -200,18 +211,26 @@ namespace Squidex.Identity
 
             if (env.IsDevelopment())
             {
+                app.UseLiveReload();
+
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
                 app.UseExceptionHandler("/Error");
             }
 
+            app.UseRouting();
+
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseIdentityServer();
-            app.UseMvc();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+            });
         }
 
         private List<CultureInfo> GetCultures()

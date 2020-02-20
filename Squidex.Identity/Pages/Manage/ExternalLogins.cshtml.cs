@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages.Manage
 {
     public sealed class ExternalLoginsModel : ManagePageModelBase<ExternalLoginsModel>
@@ -58,14 +60,14 @@ namespace Squidex.Identity.Pages.Manage
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             var authenticationRedirectUrl = Url.Page("./ExternalLogins", "LinkLoginCallback");
-            var authenticationProperties = SignInManager.ConfigureExternalAuthenticationProperties(provider, authenticationRedirectUrl, UserInfo.Id);
+            var authenticationProperties = SignInManager.ConfigureExternalAuthenticationProperties(provider, authenticationRedirectUrl, UserInfo.Id.ToString());
 
             return new ChallengeResult(provider, authenticationProperties);
         }
 
         public async Task<IActionResult> OnGetLinkLoginCallbackAsync()
         {
-            var loginInfo = await SignInManager.GetExternalLoginInfoAsync(UserInfo.Id);
+            var loginInfo = await SignInManager.GetExternalLoginInfoAsync(UserInfo.Id.ToString());
 
             if (loginInfo == null)
             {

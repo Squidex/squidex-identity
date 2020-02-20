@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Squidex.ClientLibrary;
@@ -19,15 +20,13 @@ namespace Squidex.Identity.Model
 {
     public sealed class ResourceStore : CachingProvider, IResourceStore
     {
-        private readonly SquidexClient<ResourceEntity, ResourceData> apiApiResources;
-        private readonly SquidexClient<ResourceEntity, ResourceData> apiIdentityResources;
         private readonly IStringLocalizer<AppResources> localizer;
+        private readonly SquidexClientManagerFactory factory;
 
-        public ResourceStore(IMemoryCache cache, SquidexClientManager clientManager, IStringLocalizer<AppResources> localizer)
-            : base(cache)
+        public ResourceStore(IMemoryCache cache, IHttpContextAccessor httpContextAccessor, SquidexClientManagerFactory factory, IStringLocalizer<AppResources> localizer)
+            : base(cache, httpContextAccessor)
         {
-            apiApiResources = clientManager.GetClient<ResourceEntity, ResourceData>("api-resources");
-            apiIdentityResources = clientManager.GetClient<ResourceEntity, ResourceData>("identity-resources");
+            this.factory = factory;
 
             this.localizer = localizer;
         }
@@ -64,8 +63,10 @@ namespace Squidex.Identity.Model
         {
             return GetOrAddAsync(nameof(ResourceStore), async () =>
             {
-                var taskForApiResources = apiApiResources.GetAsync(context: Context.Build());
-                var taskForIdentityResources = apiIdentityResources.GetAsync(context: Context.Build());
+                var clientManager = factory.GetClientManager();
+
+                var taskForApiResources = GetApiResourcesAsync(clientManager);
+                var taskForIdentityResources = GetIdentityResourcesAsync(clientManager);
 
                 await Task.WhenAll(taskForApiResources, taskForIdentityResources);
 
@@ -101,6 +102,20 @@ namespace Squidex.Identity.Model
 
                 return (identityResources, apiResources);
             });
+        }
+
+        private static Task<ContentsResult<ResourceEntity, ResourceData>> GetIdentityResourcesAsync(SquidexClientManager clientManager)
+        {
+            var apiIdentityResources = clientManager.CreateContentsClient<ResourceEntity, ResourceData>("identity-resources");
+
+            return apiIdentityResources.GetAsync(context: Context.Build());
+        }
+
+        private static Task<ContentsResult<ResourceEntity, ResourceData>> GetApiResourcesAsync(SquidexClientManager clientManager)
+        {
+            var apiApiResources = clientManager.CreateContentsClient<ResourceEntity, ResourceData>("api-resources");
+
+            return apiApiResources.GetAsync(context: Context.Build());
         }
     }
 }

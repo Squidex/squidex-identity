@@ -10,19 +10,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
-using Squidex.Identity.Services;
+
+#pragma warning disable SA1649 // File name should match first type name
 
 namespace Squidex.Identity.Pages.Manage
 {
     public sealed class ProfileModel : ManagePageModelBase<ProfileModel>
     {
-        private readonly IEmailSender emailSender;
-
-        public ProfileModel(IEmailSender emailSender)
-        {
-            this.emailSender = emailSender;
-        }
-
         [BindProperty]
         public ChangeProfileInputModel Input { get; set; }
 
@@ -59,13 +53,10 @@ namespace Squidex.Identity.Pages.Manage
             return Page();
         }
 
-        public async Task<IActionResult> OnPostSendVerificationEmailAsync()
+        public IActionResult OnPostSendVerificationEmail()
         {
             if (ModelState.IsValid)
             {
-                var callbackCode = await UserManager.GenerateEmailConfirmationTokenAsync(UserInfo);
-                var callbackUrl = Url.EmailConfirmationLink(UserInfo.Id, callbackCode, Request.Scheme);
-
                 StatusMessage = T["VerificationEmailSent"];
 
                 return RedirectToPage();
@@ -77,7 +68,8 @@ namespace Squidex.Identity.Pages.Manage
 
     public sealed class ChangeProfileInputModel
     {
-        [Required, EmailAddress]
+        [Required]
+        [EmailAddress]
         [Display(Name = nameof(Email))]
         public string Email { get; set; }
     }

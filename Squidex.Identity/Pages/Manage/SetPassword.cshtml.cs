@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages.Manage
 {
     public sealed class SetPasswordModel : ManagePageModelBase<SetPasswordModel>
@@ -51,7 +53,8 @@ namespace Squidex.Identity.Pages.Manage
 
     public sealed class SetPasswordInputModel
     {
-        [Required, StringLength(100,  MinimumLength = 6)]
+        [Required]
+        [StringLength(100,  MinimumLength = 6)]
         [Display(Name = nameof(NewPassword))]
         public string NewPassword { get; set; }
 

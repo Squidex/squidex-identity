@@ -14,6 +14,8 @@ using Squidex.Identity.Extensions;
 using Squidex.Identity.Model;
 using Squidex.Identity.Services;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages
 {
     public sealed class RegisterModel : PageModelBase<RegisterModel>
@@ -98,7 +100,7 @@ namespace Squidex.Identity.Pages
                 if (result.Succeeded)
                 {
                     var callbackCode = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.EmailConfirmationLink(user.Id, callbackCode, Request.Scheme);
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), callbackCode, Request.Scheme);
 
                     await emailSender.SendEmailConfirmationAsync(Input.Email, callbackUrl);
 
@@ -116,7 +118,8 @@ namespace Squidex.Identity.Pages
 
     public sealed class RegisterInputModel
     {
-        [Required, EmailAddress]
+        [Required]
+        [EmailAddress]
         [Display(Name = nameof(Email))]
         public string Email { get; set; }
 

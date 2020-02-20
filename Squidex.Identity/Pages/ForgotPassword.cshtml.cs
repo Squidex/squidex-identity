@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
 using Squidex.Identity.Services;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages
 {
     public sealed class ForgotPasswordModel : PageModelBase<ForgotPasswordModel>
@@ -34,7 +36,7 @@ namespace Squidex.Identity.Pages
                 if (user != null && await UserManager.IsEmailConfirmedAsync(user))
                 {
                     var callbackCode = await UserManager.GeneratePasswordResetTokenAsync(user);
-                    var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, callbackCode, Request.Scheme);
+                    var callbackUrl = Url.ResetPasswordCallbackLink(user.Id.ToString(), callbackCode, Request.Scheme);
 
                     await emailSender.SendResetPasswordAsync(Input.Email, callbackUrl);
                 }
@@ -48,7 +50,8 @@ namespace Squidex.Identity.Pages
 
     public sealed class ForgotPasswordInputModel
     {
-        [Required, EmailAddress]
+        [Required]
+        [EmailAddress]
         [Display(Name = nameof(Email))]
         public string Email { get; set; }
     }

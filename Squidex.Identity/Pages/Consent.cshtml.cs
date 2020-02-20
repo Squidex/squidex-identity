@@ -18,6 +18,8 @@ using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
 
+#pragma warning disable SA1649 // File name should match first type name
+
 namespace Squidex.Identity.Pages
 {
     public sealed class ConsentModel : PageModelBase<ConsentModel>
@@ -140,7 +142,7 @@ namespace Squidex.Identity.Pages
                 throw new ApplicationException($"No scopes matching: {request.ScopesRequested.Aggregate((x, y) => x + ", " + y)}");
             }
 
-            Input = Input ?? new ConsentInputModel();
+            Input ??= new ConsentInputModel();
             Input.ScopesConsented = input?.ScopesConsented ?? Enumerable.Empty<string>();
 
             AllowRememberConsent = client.AllowRememberConsent;
