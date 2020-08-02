@@ -1,6 +1,6 @@
 ﻿@inject ISettingsProvider SettingsProvider
 @inject IHtmlLocalizer<AppResources> T
-@inject SquidexClientManager SquidexClientManager
+@inject ISquidexClientManager SquidexClientManager
 @{
     var settings = await SettingsProvider.GetSettingsAsync();
 }

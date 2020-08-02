@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
@@ -42,14 +43,12 @@ namespace Squidex.Identity.Stores.MongoDb
 
         public async Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
         {
-            var result = await collection.Find(x => x.SubjectId == subjectId).ToListAsync();
-
-            return result;
+            return await collection.Find(x => x.SubjectId == subjectId).ToListAsync();
         }
 
-        public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
+        public async Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
         {
-            throw new System.NotImplementedException();
+            return await collection.Find(CreateFilter(filter)).ToListAsync();
         }
 
         public Task<PersistedGrant> GetAsync(string key)
@@ -57,19 +56,9 @@ namespace Squidex.Identity.Stores.MongoDb
             return collection.Find(x => x.Key == key).FirstOrDefaultAsync();
         }
 
-        public Task RemoveAllAsync(string subjectId, string clientId)
-        {
-            return collection.DeleteManyAsync(x => x.SubjectId == subjectId && x.ClientId == clientId);
-        }
-
-        public Task RemoveAllAsync(string subjectId, string clientId, string type)
-        {
-            return collection.DeleteManyAsync(x => x.SubjectId == subjectId && x.ClientId == clientId && x.Type == type);
-        }
-
         public Task RemoveAllAsync(PersistedGrantFilter filter)
         {
-            throw new System.NotImplementedException();
+            return collection.DeleteManyAsync(CreateFilter(filter));
         }
 
         public Task RemoveAsync(string key)
@@ -80,6 +69,40 @@ namespace Squidex.Identity.Stores.MongoDb
         public Task StoreAsync(PersistedGrant grant)
         {
             return collection.ReplaceOneAsync(x => x.Key == grant.Key, grant, UpsertReplace);
+        }
+
+        private static FilterDefinition<PersistedGrant> CreateFilter(PersistedGrantFilter filter)
+        {
+            var fb = Builders<PersistedGrant>.Filter;
+
+            var filters = new List<FilterDefinition<PersistedGrant>>();
+
+            if (!string.IsNullOrWhiteSpace(filter.ClientId))
+            {
+                filters.Add(fb.Eq(x => x.ClientId, filter.ClientId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.SessionId))
+            {
+                filters.Add(fb.Eq(x => x.SessionId, filter.SessionId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.SubjectId))
+            {
+                filters.Add(fb.Eq(x => x.SubjectId, filter.SubjectId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.Type))
+            {
+                filters.Add(fb.Eq(x => x.Type, filter.Type));
+            }
+
+            if (filters.Count > 0)
+            {
+                return fb.And(filters);
+            }
+
+            return new BsonDocument();
         }
     }
 }

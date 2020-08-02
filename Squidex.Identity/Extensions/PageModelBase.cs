@@ -7,6 +7,7 @@
 
 using System;
 using System.Threading.Tasks;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -25,6 +26,7 @@ namespace Squidex.Identity.Extensions
         private readonly Lazy<ILogger<TDerived>> logger;
         private readonly Lazy<ISettingsProvider> settings;
         private readonly Lazy<IStringLocalizer<AppResources>> localizer;
+        private readonly Lazy<IEventService> events;
 
         public SignInManager<UserEntity> SignInManager
         {
@@ -51,6 +53,11 @@ namespace Squidex.Identity.Extensions
             get { return localizer.Value; }
         }
 
+        public IEventService Events
+        {
+            get { return events.Value; }
+        }
+
         [TempData]
         public string StatusMessage { get; set; }
 
@@ -59,6 +66,7 @@ namespace Squidex.Identity.Extensions
 
         protected PageModelBase()
         {
+            SetupService(ref events);
             SetupService(ref localizer);
             SetupService(ref logger);
             SetupService(ref settings);

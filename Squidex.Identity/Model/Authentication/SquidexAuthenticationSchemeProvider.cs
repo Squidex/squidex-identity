@@ -18,7 +18,7 @@ using Microsoft.Extensions.Options;
 
 namespace Squidex.Identity.Model.Authentication
 {
-    public sealed class SquidexAuthenticationSchemeProvider : IAuthenticationSchemeProvider
+    public sealed class SquidexAuthenticationSchemeProvider : AuthenticationSchemeProvider, IAuthenticationSchemeProvider
     {
         private readonly List<AuthenticationScheme> defaultSchemes = new List<AuthenticationScheme>();
         private readonly IOptions<AuthenticationOptions> options;
@@ -28,6 +28,7 @@ namespace Squidex.Identity.Model.Authentication
             IAuthenticationSchemeStore store,
             IEnumerable<IAuthenticationSchemeConfigurator> configurators,
             IOptions<AuthenticationOptions> options)
+            : base(options)
         {
             this.options = options;
 
@@ -44,66 +45,32 @@ namespace Squidex.Identity.Model.Authentication
             this.store = store;
         }
 
-        public void AddScheme(AuthenticationScheme scheme)
+        public override async Task<IEnumerable<AuthenticationScheme>> GetRequestHandlerSchemesAsync()
         {
-            throw new NotSupportedException();
+            var schemes = await GetSchemesCoreAsync();
+
+            var result = schemes.Where(x => typeof(IAuthenticationRequestHandler).IsAssignableFrom(x.HandlerType));
+
+            return result;
         }
 
-        public void RemoveScheme(string name)
+        public override async Task<AuthenticationScheme> GetSchemeAsync(string name)
         {
-            throw new NotSupportedException();
+            var schemes = await GetSchemesCoreAsync();
+
+            var result = schemes.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.Ordinal));
+
+            return result;
         }
 
-        private Task<AuthenticationScheme> GetDefaultSchemeAsync()
+        public async override Task<IEnumerable<AuthenticationScheme>> GetAllSchemesAsync()
         {
-            return options.Value.DefaultScheme != null ? GetSchemeAsync(options.Value.DefaultScheme) : Task.FromResult<AuthenticationScheme>(null);
+            var result = await GetSchemesCoreAsync();
+
+            return result;
         }
 
-        private Task<AuthenticationScheme> GetSchemaOrDefaultAsync(string name)
-        {
-            return name != null ? GetSchemeAsync(name) : GetDefaultSchemeAsync();
-        }
-
-        public Task<AuthenticationScheme> GetDefaultAuthenticateSchemeAsync()
-        {
-            return GetDefaultSchemeAsync();
-        }
-
-        public Task<AuthenticationScheme> GetDefaultChallengeSchemeAsync()
-        {
-            return GetSchemaOrDefaultAsync(options.Value.DefaultChallengeScheme);
-        }
-
-        public Task<AuthenticationScheme> GetDefaultForbidSchemeAsync()
-        {
-            return GetSchemaOrDefaultAsync(options.Value.DefaultForbidScheme);
-        }
-
-        public Task<AuthenticationScheme> GetDefaultSignInSchemeAsync()
-        {
-            return GetSchemaOrDefaultAsync(options.Value.DefaultSignInScheme);
-        }
-
-        public Task<AuthenticationScheme> GetDefaultSignOutSchemeAsync()
-        {
-            return GetSchemaOrDefaultAsync(options.Value.DefaultSignOutScheme);
-        }
-
-        public async Task<IEnumerable<AuthenticationScheme>> GetRequestHandlerSchemesAsync()
-        {
-            var schemes = await GetAllSchemesAsync();
-
-            return schemes.Where(x => typeof(IAuthenticationRequestHandler).IsAssignableFrom(x.HandlerType));
-        }
-
-        public async Task<AuthenticationScheme> GetSchemeAsync(string name)
-        {
-            var schemes = await GetAllSchemesAsync();
-
-            return schemes.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public async Task<IEnumerable<AuthenticationScheme>> GetAllSchemesAsync()
+        private async Task<IEnumerable<AuthenticationScheme>> GetSchemesCoreAsync()
         {
             var schemes = await store.GetSchemesAsync();
 

@@ -28,7 +28,7 @@ namespace Squidex.Identity.Model
             return value ?? new List<T>();
         }
 
-        public static string OrDefault<T>(this string value)
+        public static string OrDefault(this string value)
         {
             return value ?? string.Empty;
         }

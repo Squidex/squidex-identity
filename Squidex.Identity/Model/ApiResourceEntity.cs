@@ -26,7 +26,7 @@ namespace Squidex.Identity.Model
             };
 
             result.Scopes = new List<string>();
-            
+
             if (Data.Scopes != null)
             {
                 foreach (var scopeId in Data.Scopes)

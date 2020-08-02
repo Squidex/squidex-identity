@@ -8,29 +8,20 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using SharpPwned.NET;
 using Squidex.ClientLibrary;
+using Squidex.Identity.Extensions;
 using Squidex.Identity.Model;
-using Squidex.Identity.Model.Authentication;
 using Squidex.Identity.Services;
 using Squidex.Identity.Stores.MongoDb;
 using Westwind.AspNetCore.LiveReload;
@@ -56,6 +47,7 @@ namespace Squidex.Identity
             services.AddScoped(c => c.GetRequiredService<SquidexClientManagerFactory>().GetClientManager());
 
             services.AddMemoryCache();
+            services.AddNonBreakingSameSiteCookies();
 
             services.AddLiveReload();
             services.AddLocalization(options =>
@@ -78,46 +70,9 @@ namespace Squidex.Identity
 
             services.AddDataProtection().SetApplicationName("SquidexIdentity");
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.Name = ".sq.id.auth";
-            });
-
-            services.AddAuthentication()
-                .AddFacebook()
-                .AddGoogle()
-                .AddMicrosoftAccount()
-                .AddTwitter();
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/login";
-                options.LogoutPath = "/logout";
-                options.AccessDeniedPath = "/accessdenied";
-            });
-
-            services.AddIdentity<UserEntity, RoleEntity>()
-                .AddUserStore<UserStore>()
-                .AddRoleStore<RoleStore>()
-                .AddDefaultTokenProviders();
-
-            services.AddIdentityServer(options =>
-                {
-                    options.Events.RaiseSuccessEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.UserInteraction.LoginUrl = "/login";
-                    options.UserInteraction.LogoutUrl = "/logout";
-                    options.UserInteraction.ErrorUrl = "/error";
-                    options.UserInteraction.ConsentUrl = "/consent";
-                })
-                .AddAppAuthRedirectUriValidator()
-                .AddAspNetIdentity<UserEntity>()
-                .AddClientConfigurationValidator<DefaultClientConfigurationValidator>()
-                .AddClientStore<ClientStore>()
-                .AddInMemoryCaching()
-                .AddResourceStore<ResourceStore>();
+            services.AddMyIdentity();
+            services.AddMyIdentityServer();
+            services.AddMyAuthentication();
 
             services.AddMvc()
                 .AddViewLocalization(options =>
@@ -133,40 +88,6 @@ namespace Squidex.Identity
                     options.Conventions.AuthorizeFolder("/Manage");
                     options.Conventions.AuthorizePage("/Logout");
                 });
-
-            services.AddSingleton<HaveIBeenPwnedRestClient>();
-
-            services.AddAuthenticationConfigurator<FacebookOptions, FacebookHandler>(
-                AuthenticationSchemeType.Facebook, Factories.OAuth<FacebookOptions>);
-
-            services.AddAuthenticationConfigurator<GoogleOptions, GoogleHandler>(
-                AuthenticationSchemeType.Google, Factories.OAuth<GoogleOptions>);
-
-            services.AddAuthenticationConfigurator<MicrosoftAccountOptions, MicrosoftAccountHandler>(
-                AuthenticationSchemeType.Microsoft, Factories.OAuth<MicrosoftAccountOptions>);
-
-            services.AddAuthenticationConfigurator<TwitterOptions, TwitterHandler>(
-                AuthenticationSchemeType.Twitter, Factories.Twitter);
-
-            services.AddSingleton<MongoKeyStore>();
-
-            services.AddSingleton<ISigningCredentialStore>(
-                c => c.GetRequiredService<MongoKeyStore>());
-
-            services.AddSingleton<IValidationKeysStore>(
-                c => c.GetRequiredService<MongoKeyStore>());
-
-            services.AddSingleton<IPasswordValidator<UserEntity>,
-                PwnedPasswordValidator>();
-
-            services.AddSingleton<IEmailValidator,
-                PwnedEmailValidator>();
-
-            services.AddSingleton<IAuthenticationSchemeProvider,
-                SquidexAuthenticationSchemeProvider>();
-
-            services.AddSingleton<IAuthenticationSchemeStore,
-                AuthenticationSchemeStore>();
 
             services.AddSingleton<ISettingsProvider,
                 SettingsProvider>();
@@ -188,6 +109,8 @@ namespace Squidex.Identity
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCookiePolicy();
+
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
@@ -211,7 +134,7 @@ namespace Squidex.Identity
 
             if (env.IsDevelopment())
             {
-                app.UseLiveReload();
+                // app.UseLiveReload();
 
                 app.UseDeveloperExceptionPage();
             }
@@ -220,11 +143,12 @@ namespace Squidex.Identity
                 app.UseExceptionHandler("/Error");
             }
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
-            app.UseStaticFiles();
-            app.UseAuthentication();
             app.UseIdentityServer();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
