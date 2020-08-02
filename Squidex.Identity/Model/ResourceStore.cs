@@ -31,91 +31,102 @@ namespace Squidex.Identity.Model
             this.localizer = localizer;
         }
 
-        public async Task<Resources> GetAllResourcesAsync()
+        public Task<Resources> GetAllResourcesAsync()
+        {
+            return GetResourcesAsync();
+        }
+
+        public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
         {
             var resources = await GetResourcesAsync();
 
-            return new Resources(resources.IdentityResources, resources.ApiResources);
+            return resources.ApiScopes.Where(x => scopeNames.Contains(x.Name));
         }
 
-        public async Task<ApiResource> FindApiResourceAsync(string name)
-        {
-            var resources = await GetResourcesAsync();
-
-            return resources.ApiResources.FirstOrDefault(x => x.Name == name);
-        }
-
-        public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeAsync(IEnumerable<string> scopeNames)
-        {
-            var resources = await GetResourcesAsync();
-
-            return resources.ApiResources.Where(x => scopeNames.Contains(x.Name));
-        }
-
-        public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
             var resources = await GetResourcesAsync();
 
             return resources.IdentityResources.Where(x => scopeNames.Contains(x.Name));
         }
 
-        private Task<(List<IdentityResource> IdentityResources, List<ApiResource> ApiResources)> GetResourcesAsync()
+        public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+        {
+            var resources = await GetResourcesAsync();
+
+            return resources.ApiResources.Where(x => x.Scopes.Any(s => scopeNames.Contains(s)));
+        }
+
+        public async Task<IEnumerable<ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
+        {
+            var resources = await GetResourcesAsync();
+
+            return resources.ApiResources.Where(x => apiResourceNames.Contains(x.Name));
+        }
+
+        private Task<Resources> GetResourcesAsync()
         {
             return GetOrAddAsync(nameof(ResourceStore), async () =>
             {
-                var clientManager = factory.GetClientManager();
+                var taskForApiResources = GetApiResourcesAsync(factory);
+                var taskForApiScopes = GetApiScopesAsync(factory);
+                var taskForIdentityResources = GetIdentityResourcesAsync(factory);
 
-                var taskForApiResources = GetApiResourcesAsync(clientManager);
-                var taskForIdentityResources = GetIdentityResourcesAsync(clientManager);
+                await Task.WhenAll(
+                    taskForApiResources,
+                    taskForApiScopes,
+                    taskForIdentityResources);
 
-                await Task.WhenAll(taskForApiResources, taskForIdentityResources);
+                var identityResources = ConvertIdentityResources(taskForIdentityResources);
+                var apiScopes = ConvertApiScopes(taskForApiScopes);
+                var apiResources = ConvertApiResources(taskForApiResources, apiScopes);
 
-                var identityResources = taskForIdentityResources.Result.Items.Select(x =>
-                {
-                    var identityResource = new IdentityResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.OrDefault())
-                    {
-                        Description = x.Data.Description,
-                        Emphasize = true,
-                        Required = x.Data.Required
-                    };
-
-                    return identityResource;
-                }).ToList();
-
-                identityResources.Add(new IdentityResources.OpenId());
-                identityResources.Add(new IdentityResources.Profile());
-                identityResources.Add(new IdentityResources.Email());
-                identityResources.Add(new IdentityResources.Phone());
-                identityResources.Add(new DefaultResources.Permissions(localizer));
-
-                var apiResources = taskForApiResources.Result.Items.Select(x =>
-                {
-                    var apiResource = new ApiResource(x.Data.Name, x.Data.DisplayName, x.Data.UserClaims.OrDefault())
-                    {
-                        Description = x.Data.Description
-                    };
-
-                    apiResource.Scopes.First().Description = x.Data.Description;
-
-                    return apiResource;
-                }).ToList();
-
-                return (identityResources, apiResources);
+                return new Resources(identityResources, apiResources, apiScopes.Values.ToList());
             });
         }
 
-        private static Task<ContentsResult<ResourceEntity, ResourceData>> GetIdentityResourcesAsync(SquidexClientManager clientManager)
+        private static List<ApiResource> ConvertApiResources(Task<ContentsResult<ApiResourceEntity, ApiResourceData>> task, Dictionary<Guid, ApiScope> apiScopes)
         {
-            var apiIdentityResources = clientManager.CreateContentsClient<ResourceEntity, ResourceData>("identity-resources");
-
-            return apiIdentityResources.GetAsync(context: Context.Build());
+            return task.Result.Items.Select(x => x.ToResource(apiScopes)).ToList();
         }
 
-        private static Task<ContentsResult<ResourceEntity, ResourceData>> GetApiResourcesAsync(SquidexClientManager clientManager)
+        private static Dictionary<Guid, ApiScope> ConvertApiScopes(Task<ContentsResult<ApiScopeEntity, ApiScopeData>> task)
         {
-            var apiApiResources = clientManager.CreateContentsClient<ResourceEntity, ResourceData>("api-resources");
+            return task.Result.Items.ToDictionary(x => x.Id, x => x.ToScope());
+        }
 
-            return apiApiResources.GetAsync(context: Context.Build());
+        private List<IdentityResource> ConvertIdentityResources(Task<ContentsResult<IdentityResourceEntity, IdentityResourceData>> task)
+        {
+            var identityResources = task.Result.Items.Select(x => x.ToResource()).ToList();
+
+            identityResources.Add(new IdentityResources.OpenId());
+            identityResources.Add(new IdentityResources.Profile());
+            identityResources.Add(new IdentityResources.Email());
+            identityResources.Add(new IdentityResources.Phone());
+            identityResources.Add(new DefaultResources.Permissions(localizer));
+
+            return identityResources;
+        }
+
+        private static Task<ContentsResult<IdentityResourceEntity, IdentityResourceData>> GetIdentityResourcesAsync(SquidexClientManagerFactory factory)
+        {
+            var client = factory.GetContentsClient<IdentityResourceEntity, IdentityResourceData>("identity-resources");
+
+            return client.GetAsync(context: Context.Build());
+        }
+
+        private static Task<ContentsResult<ApiResourceEntity, ApiResourceData>> GetApiResourcesAsync(SquidexClientManagerFactory factory)
+        {
+            var client = factory.GetContentsClient<ApiResourceEntity, ApiResourceData>("api-resources");
+
+            return client.GetAsync(context: Context.Build());
+        }
+
+        private static Task<ContentsResult<ApiScopeEntity, ApiScopeData>> GetApiScopesAsync(SquidexClientManagerFactory factory)
+        {
+            var client = factory.GetContentsClient<ApiScopeEntity, ApiScopeData>("api-scopes");
+
+            return client.GetAsync(context: Context.Build());
         }
     }
 }

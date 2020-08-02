@@ -15,6 +15,7 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Squidex.Identity.Extensions;
 
@@ -27,18 +28,15 @@ namespace Squidex.Identity.Pages
         private readonly IClientStore clientStore;
         private readonly IEventService events;
         private readonly IIdentityServerInteractionService interaction;
-        private readonly IResourceStore resourceStore;
 
         public ConsentModel(
             IClientStore clientStore,
             IEventService events,
-            IIdentityServerInteractionService interaction,
-            IResourceStore resourceStore)
+            IIdentityServerInteractionService interaction)
         {
             this.clientStore = clientStore;
             this.events = events;
             this.interaction = interaction;
-            this.resourceStore = resourceStore;
         }
 
         [BindProperty]
@@ -57,7 +55,7 @@ namespace Squidex.Identity.Pages
 
         public List<ScopeViewModel> IdentityScopes { get; set; }
 
-        public List<ScopeViewModel> ResourceScopes { get; set; }
+        public List<ScopeViewModel> ApiScopes { get; set; } = new List<ScopeViewModel>();
 
         public Task OnGet()
         {
@@ -77,9 +75,13 @@ namespace Squidex.Identity.Pages
 
             if (string.Equals(Input.Button, "NO", StringComparison.OrdinalIgnoreCase))
             {
-                grantedConsent = ConsentResponse.Denied;
+                grantedConsent = new ConsentResponse { Error = AuthorizationError.AccessDenied };
 
-                await events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested));
+                await events.RaiseAsync(
+                    new ConsentDeniedEvent(
+                        User.GetSubjectId(),
+                        request.Client.ClientId,
+                        request.ValidatedResources.RawScopeValues));
             }
             else if (string.Equals(Input.Button, "YES", StringComparison.OrdinalIgnoreCase))
             {
@@ -89,11 +91,16 @@ namespace Squidex.Identity.Pages
 
                     grantedConsent = new ConsentResponse
                     {
-                        RememberConsent = Input.RememberConsent,
-                        ScopesConsented = scopes.ToArray()
+                        RememberConsent = Input.RememberConsent, ScopesValuesConsented = scopes.ToArray()
                     };
 
-                    await events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
+                    await events.RaiseAsync(
+                        new ConsentGrantedEvent(
+                            User.GetSubjectId(),
+                            request.Client.ClientId,
+                            request.ValidatedResources.RawScopeValues,
+                            grantedConsent.ScopesValuesConsented,
+                            grantedConsent.RememberConsent));
                 }
                 else
                 {
@@ -128,19 +135,14 @@ namespace Squidex.Identity.Pages
                 throw new ApplicationException($"No consent request matching request: {ReturnUrl}");
             }
 
-            var client = await clientStore.FindEnabledClientByIdAsync(request.ClientId);
+            var client = await clientStore.FindEnabledClientByIdAsync(request.Client.ClientId);
 
             if (client == null)
             {
-                throw new ApplicationException($"Invalid client id: {request.ClientId}");
+                throw new ApplicationException($"Invalid client id: {request.Client.ClientId}");
             }
 
-            var resources = await resourceStore.FindEnabledResourcesByScopeAsync(request.ScopesRequested);
-
-            if (resources == null)
-            {
-                throw new ApplicationException($"No scopes matching: {request.ScopesRequested.Aggregate((x, y) => x + ", " + y)}");
-            }
+            var resources = request.ValidatedResources.Resources.IdentityResources;
 
             Input ??= new ConsentInputModel();
             Input.ScopesConsented = input?.ScopesConsented ?? Enumerable.Empty<string>();
@@ -151,17 +153,22 @@ namespace Squidex.Identity.Pages
             ClientUrl = client.ClientUri;
             ClientLogoUrl = client.LogoUri;
 
-            IdentityScopes = resources.IdentityResources.Select(x => CreateScopeViewModel(x, input == null || input.ScopesConsented.Contains(x.Name))).ToList();
+            IdentityScopes = resources.Select(x => CreateScopeViewModel(x, input == null || input.ScopesConsented.Contains(x.Name))).ToList();
 
-            ResourceScopes =
-                resources.ApiResources
-                    .SelectMany(x => x.Scopes)
-                    .Select(x => CreateScopeViewModel(x, input == null || input.ScopesConsented.Contains(x.Name)))
-                    .ToList();
-
-            if (resources.OfflineAccess)
+            foreach (var parsedScope in request.ValidatedResources.ParsedScopes)
             {
-                ResourceScopes.Add(
+                var apiScope = request.ValidatedResources.Resources.FindApiScope(parsedScope.ParsedName);
+                if (apiScope != null)
+                {
+                    var scopeVm = CreateScopeViewModel(parsedScope, apiScope, input.ScopesConsented.Contains(parsedScope.RawValue) || input == null);
+
+                    ApiScopes.Add(scopeVm);
+                }
+            }
+
+            if (request.ValidatedResources.Resources.OfflineAccess)
+            {
+                ApiScopes.Add(
                     new ScopeViewModel
                     {
                         Name = IdentityServerConstants.StandardScopes.OfflineAccess,
@@ -186,12 +193,19 @@ namespace Squidex.Identity.Pages
             };
         }
 
-        public ScopeViewModel CreateScopeViewModel(Scope scope, bool check)
+        private ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope scope, bool check)
         {
+            var displayName = scope.DisplayName ?? scope.Name;
+
+            if (!string.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter))
+            {
+                displayName += ":" + parsedScopeValue.ParsedParameter;
+            }
+
             return new ScopeViewModel
             {
                 Name = scope.Name,
-                DisplayName = scope.DisplayName,
+                DisplayName = displayName,
                 Description = scope.Description,
                 Emphasize = scope.Emphasize,
                 Required = scope.Required,

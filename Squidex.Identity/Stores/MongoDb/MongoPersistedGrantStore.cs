@@ -47,6 +47,11 @@ namespace Squidex.Identity.Stores.MongoDb
             return result;
         }
 
+        public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task<PersistedGrant> GetAsync(string key)
         {
             return collection.Find(x => x.Key == key).FirstOrDefaultAsync();
@@ -60,6 +65,11 @@ namespace Squidex.Identity.Stores.MongoDb
         public Task RemoveAllAsync(string subjectId, string clientId, string type)
         {
             return collection.DeleteManyAsync(x => x.SubjectId == subjectId && x.ClientId == clientId && x.Type == type);
+        }
+
+        public Task RemoveAllAsync(PersistedGrantFilter filter)
+        {
+            throw new System.NotImplementedException();
         }
 
         public Task RemoveAsync(string key)

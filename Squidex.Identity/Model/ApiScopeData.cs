@@ -7,7 +7,7 @@
 
 namespace Squidex.Identity.Model
 {
-    public sealed class ResourceData
+    public sealed class ApiScopeData
     {
         public string Name { get; set; }
 
@@ -18,5 +18,9 @@ namespace Squidex.Identity.Model
         public string[] UserClaims { get; set; }
 
         public bool Required { get; set; }
+
+        public bool Enabled { get; set; }
+
+        public bool Emphasize { get; set; }
     }
 }

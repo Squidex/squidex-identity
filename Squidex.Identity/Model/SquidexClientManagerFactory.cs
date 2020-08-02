@@ -16,7 +16,7 @@ namespace Squidex.Identity.Model
     {
         private readonly SquidexClientManager appDefault;
         private readonly SquidexOptionsPerHost appPerHost;
-        private readonly ConcurrentDictionary<string, SquidexClientManager> clientManagers = new ConcurrentDictionary<string, SquidexClientManager>();
+        private readonly ConcurrentDictionary<string, object> cache = new ConcurrentDictionary<string, object>();
         private readonly IHttpContextAccessor httpContextAccessor;
 
         public SquidexClientManagerFactory(
@@ -29,21 +29,40 @@ namespace Squidex.Identity.Model
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        public SquidexClientManager GetClientManager()
+        public IContentsClient<TEntity, TData> GetContentsClient<TEntity, TData>(string schemaName)
+            where TEntity : Content<TData>
+            where TData : class, new()
         {
-            var host = httpContextAccessor?.HttpContext?.Request.Host.ToString();
+            var cacheKey = $"{schemaName}_{GetHostName()}";
 
-            if (string.IsNullOrWhiteSpace(host))
+            return (IContentsClient<TEntity, TData>)cache.GetOrAdd(cacheKey, x =>
+            {
+                var clientManager = GetClientManager();
+
+                return clientManager.CreateContentsClient<TEntity, TData>(schemaName);
+            });
+        }
+
+        public ISquidexClientManager GetClientManager()
+        {
+            var cacheKey = GetHostName();
+
+            if (string.IsNullOrWhiteSpace(cacheKey))
             {
                 return appDefault;
             }
 
-            if (appPerHost.TryGetValue(host, out var options))
+            if (appPerHost.TryGetValue(cacheKey, out var options))
             {
-                return clientManagers.GetOrAdd(host, x => new SquidexClientManager(options));
+                return (ISquidexClientManager)cache.GetOrAdd(cacheKey, x => new SquidexClientManager(options));
             }
 
             return appDefault;
+        }
+
+        private string GetHostName()
+        {
+            return httpContextAccessor?.HttpContext?.Request.Host.ToString();
         }
     }
 }

@@ -59,7 +59,7 @@
         </div>
     }
 
-    @if (Model.ResourceScopes.Any())
+    @if (Model.ApiScopes.Any())
     {
         <div class="card form-group">
             <div class="card-header">
@@ -67,7 +67,7 @@
             </div>
 
             <ul class="list-group list-group-flush">
-                @foreach (var scope in Model.ResourceScopes)
+                @foreach (var scope in Model.ApiScopes)
                 {
                     <li class="list-group-item">
                         <label>

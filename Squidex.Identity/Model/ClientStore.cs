@@ -11,15 +11,18 @@ using System.Threading.Tasks;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
 {
-    public sealed class ClientStore : IClientStore
+    public sealed class ClientStore : CachingProvider, IClientStore
     {
         private readonly SquidexClientManagerFactory factory;
 
-        public ClientStore(SquidexClientManagerFactory factory)
+        public ClientStore(IMemoryCache cache, IHttpContextAccessor httpContextAccessor, SquidexClientManagerFactory factory)
+            : base(cache, httpContextAccessor)
         {
             this.factory = factory;
         }
@@ -28,16 +31,8 @@ namespace Squidex.Identity.Model
         {
             var clientManager = factory.GetClientManager();
 
-            var apiClient = factory.GetClientManager().CreateContentsClient<ClientEntity, ClientData>("clients");
-
-            var query = new ContentQuery
-            {
-                Filter = $"data/clientId/iv eq '{clientId}'"
-            };
-
-            var clients = await apiClient.GetAsync(query, context: Context.Build());
-
-            var client = clients.Items.FirstOrDefault();
+            var clients = await GetClientsAsync();
+            var client = clients.Items.FirstOrDefault(x => x.Data.ClientId == clientId);
 
             if (client == null)
             {
@@ -68,6 +63,16 @@ namespace Squidex.Identity.Model
                 RedirectUris = client.Data.RedirectUris.OrDefault(),
                 RequireConsent = client.Data.RequireConsent
             };
+        }
+
+        private Task<ContentsResult<ClientEntity, ClientData>> GetClientsAsync()
+        {
+            return GetOrAddAsync("Clients", () =>
+            {
+                var client = factory.GetContentsClient<ClientEntity, ClientData>("clients");
+
+                return client.GetAsync(context: Context.Build());
+            });
         }
     }
 }

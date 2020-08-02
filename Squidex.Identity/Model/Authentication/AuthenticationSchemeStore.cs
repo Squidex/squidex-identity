@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model.Authentication
 {
@@ -27,17 +28,20 @@ namespace Squidex.Identity.Model.Authentication
         {
             return GetOrAddAsync(nameof(AuthenticationSchemeType), async () =>
             {
-                var apiClient =
-                    factory.GetClientManager()
-                        .CreateContentsClient<AuthenticationSchemeEntity, AuthenticationSchemeData>("authentication-schemes");
-
-                var schemes = await apiClient.GetAsync(context: Context.Build());
+                var schemes = await GetSchemesCoreAsync();
 
                 return schemes.Items
                     .Select(x => x.Data).GroupBy(x => x.Provider)
                     .Select(x => x.First())
                     .ToList();
             });
+        }
+
+        private Task<ContentsResult<AuthenticationSchemeEntity, AuthenticationSchemeData>> GetSchemesCoreAsync()
+        {
+            var client = factory.GetContentsClient<AuthenticationSchemeEntity, AuthenticationSchemeData>("authentication-schemes");
+
+            return client.GetAsync(context: Context.Build());
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Squidex.ClientLibrary;
 
 namespace Squidex.Identity.Model
 {
@@ -30,11 +31,7 @@ namespace Squidex.Identity.Model
         {
             return GetOrAddAsync(nameof(SettingsProvider), async () =>
             {
-                var apiClient =
-                    factory.GetClientManager()
-                        .CreateContentsClient<SettingsEntity, SettingsData>("settings");
-
-                var settings = await apiClient.GetAsync(context: Context.Build());
+                var settings = await GetSettingsCoreAsync();
 
                 var result = settings.Items.FirstOrDefault()?.Data ?? new SettingsData();
 
@@ -48,6 +45,15 @@ namespace Squidex.Identity.Model
 
                 return result;
             });
+        }
+
+        private async Task<ContentsResult<SettingsEntity, SettingsData>> GetSettingsCoreAsync()
+        {
+            var client = factory.GetContentsClient<SettingsEntity, SettingsData>("settings");
+
+            var settings = await client.GetAsync(context: Context.Build());
+
+            return settings;
         }
     }
 }

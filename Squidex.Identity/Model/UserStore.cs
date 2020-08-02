@@ -29,9 +29,9 @@ namespace Squidex.Identity.Model
     {
         private readonly IContentsClient<UserEntity, UserData> apiClient;
 
-        public UserStore(SquidexClientManager clientManager)
+        public UserStore(SquidexClientManagerFactory factory)
         {
-            apiClient = clientManager.CreateContentsClient<UserEntity, UserData>("users");
+            apiClient = factory.GetContentsClient<UserEntity, UserData>("users");
         }
 
         public void Dispose()
