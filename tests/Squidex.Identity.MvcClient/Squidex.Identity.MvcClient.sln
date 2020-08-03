@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30128.74
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Squidex.Identity.MvcClient", "Squidex.Identity.MvcClient.csproj", "{5737C01F-45E0-48CB-BD82-C3158D6C773E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5737C01F-45E0-48CB-BD82-C3158D6C773E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5737C01F-45E0-48CB-BD82-C3158D6C773E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5737C01F-45E0-48CB-BD82-C3158D6C773E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5737C01F-45E0-48CB-BD82-C3158D6C773E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F2B8AF6A-C403-49AB-B115-E58ADFB9332A}
+	EndGlobalSection
+EndGlobal

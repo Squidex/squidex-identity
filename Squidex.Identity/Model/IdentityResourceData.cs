@@ -19,7 +19,7 @@ namespace Squidex.Identity.Model
 
         public bool Required { get; set; }
 
-        public bool Enabled { get; set; }
+        public bool Disabled { get; set; }
 
         public bool Emphasize { get; set; }
     }

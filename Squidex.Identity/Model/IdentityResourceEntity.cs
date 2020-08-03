@@ -20,7 +20,7 @@ namespace Squidex.Identity.Model
                 Data.DisplayName ?? string.Empty,
                 Data.UserClaims ?? Enumerable.Empty<string>())
             {
-                Enabled = Data.Enabled,
+                Enabled = !Data.Disabled,
                 Emphasize = Data.Emphasize,
                 Required = Data.Required
             };

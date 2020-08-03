@@ -22,7 +22,7 @@ namespace Squidex.Identity.Model
                 Data.DisplayName.OrDefault(),
                 Data.UserClaims.OrDefault())
             {
-                Enabled = Data.Enabled
+                Enabled = !Data.Disabled
             };
 
             result.Scopes = new List<string>();

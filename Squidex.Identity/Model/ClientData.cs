@@ -32,5 +32,7 @@ namespace Squidex.Identity.Model
         public bool AllowOfflineAccess { get; set; }
 
         public bool RequireConsent { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

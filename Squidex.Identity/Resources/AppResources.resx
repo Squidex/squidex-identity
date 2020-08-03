@@ -181,7 +181,7 @@
     <value>Email</value>
   </data>
   <data name="ErrorInfo" xml:space="preserve">
-    <value>That's and error.</value>
+    <value>That's an error.</value>
   </data>
   <data name="ErrorText" xml:space="preserve">
     <value>Sorry, an error occurred. The team is already working on that.</value>

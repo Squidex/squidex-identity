@@ -39,30 +39,7 @@ namespace Squidex.Identity.Model
                 return null;
             }
 
-            var scopes = new HashSet<string>(client.Data.AllowedScopes.OrDefault())
-            {
-                IdentityServerConstants.StandardScopes.OpenId,
-                IdentityServerConstants.StandardScopes.Profile,
-                IdentityServerConstants.StandardScopes.Email,
-                DefaultResources.Permissions.Scope
-            };
-
-            return new Client
-            {
-                AllowAccessTokensViaBrowser = true,
-                AllowedCorsOrigins = client.Data.AllowedCorsOrigins.OrDefault(),
-                AllowedGrantTypes = client.Data.AllowedGrantTypes.OrDefault(),
-                AllowedScopes = scopes,
-                AllowOfflineAccess = client.Data.AllowOfflineAccess,
-                ClientId = clientId,
-                ClientName = client.Data.ClientName,
-                ClientSecrets = client.Data.ClientSecrets.ToSecrets(),
-                ClientUri = client.Data.ClientUri,
-                LogoUri = clientManager.GenerateImageUrl(client.Data.Logo),
-                PostLogoutRedirectUris = client.Data.PostLogoutRedirectUris.OrDefault(),
-                RedirectUris = client.Data.RedirectUris.OrDefault(),
-                RequireConsent = client.Data.RequireConsent
-            };
+            return client.ToClient(clientManager);
         }
 
         private Task<ContentsResult<ClientEntity, ClientData>> GetClientsAsync()

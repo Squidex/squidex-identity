@@ -48,9 +48,16 @@ namespace Squidex.Identity.Model
             throw new NotSupportedException();
         }
 
-        public Task<UserEntity> FindByIdAsync(string userId, CancellationToken cancellationToken)
+        public async Task<UserEntity> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
-            return apiClient.GetAsync(Guid.Parse(userId));
+            try
+            {
+                return await apiClient.GetAsync(Guid.Parse(userId));
+            }
+            catch (SquidexException)
+            {
+                return null;
+            }
         }
 
         public async Task<UserEntity> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)

@@ -20,7 +20,7 @@ namespace Squidex.Identity.Model
 
         public string[] UserClaims { get; set; }
 
-        public bool Enabled { get; set; }
+        public bool Disabled { get; set; }
 
         public List<Guid> Scopes { get; set; }
     }

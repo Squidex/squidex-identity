@@ -62,7 +62,7 @@ namespace Squidex.Identity.Model
 
         private string GetHostName()
         {
-            return httpContextAccessor?.HttpContext?.Request.Host.ToString();
+            return httpContextAccessor?.HttpContext?.Request.Host.ToString().Replace(":", "_");
         }
     }
 }

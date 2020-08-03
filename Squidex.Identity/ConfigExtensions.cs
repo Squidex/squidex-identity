@@ -44,14 +44,13 @@ namespace Squidex.Identity
             .AddInMemoryCaching()
             .AddResourceStore<ResourceStore>();
 
-            /*
             services.AddSingleton<MongoKeyStore>();
 
             services.AddSingleton<ISigningCredentialStore>(
                 c => c.GetRequiredService<MongoKeyStore>());
 
             services.AddSingleton<IValidationKeysStore>(
-                c => c.GetRequiredService<MongoKeyStore>());*/
+                c => c.GetRequiredService<MongoKeyStore>());
         }
 
         public static void AddMyIdentity(this IServiceCollection services)

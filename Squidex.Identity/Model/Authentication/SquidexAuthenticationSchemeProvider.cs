@@ -21,17 +21,12 @@ namespace Squidex.Identity.Model.Authentication
     public sealed class SquidexAuthenticationSchemeProvider : AuthenticationSchemeProvider, IAuthenticationSchemeProvider
     {
         private readonly List<AuthenticationScheme> defaultSchemes = new List<AuthenticationScheme>();
-        private readonly IOptions<AuthenticationOptions> options;
         private readonly IAuthenticationSchemeStore store;
 
-        public SquidexAuthenticationSchemeProvider(
-            IAuthenticationSchemeStore store,
-            IEnumerable<IAuthenticationSchemeConfigurator> configurators,
+        public SquidexAuthenticationSchemeProvider(IAuthenticationSchemeStore store, IEnumerable<IAuthenticationSchemeConfigurator> configurators,
             IOptions<AuthenticationOptions> options)
             : base(options)
         {
-            this.options = options;
-
             foreach (var builder in options.Value.Schemes)
             {
                 var scheme = builder.Build();
