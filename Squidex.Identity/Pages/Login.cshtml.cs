@@ -45,9 +45,8 @@ namespace Squidex.Identity.Pages
             await next();
         }
 
-        public async Task OnGetAsync()
+        public void OnGet()
         {
-           // await HttpContext.SignOutAsync();
         }
 
         public async Task<IActionResult> OnPostAsync()
