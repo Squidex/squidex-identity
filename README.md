@@ -2,8 +2,6 @@
 
 # Squidex Identity [Discontinued]
 
-[![Build Status](http://build.squidex.io/api/badges/Squidex/squidex-identity/status.svg)](http://build.squidex.io/Squidex/squidex-identity)
-
 Identity server based on Squidex Headless CMS. It implements the OpenId Connect and OAuth 2.0 protocols to act as a central single sign on server.
 
 Due to the lack of interest on because identity-server is a commercial project now (read more about it in the [blog](https://leastprivilege.com/2020/10/01/the-future-of-identityserver/)] the project is discontinued, but kept as a sample.
