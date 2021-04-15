@@ -1,6 +1,6 @@
 ![Squidex Logo](https://raw.githubusercontent.com/Squidex/squidex/master/media/logo-wide.png "Squidex")
 
-# Squidex Identity, Discontinued
+# Squidex Identity [Discontinued]
 
 [![Build Status](http://build.squidex.io/api/badges/Squidex/squidex-identity/status.svg)](http://build.squidex.io/Squidex/squidex-identity)
 
